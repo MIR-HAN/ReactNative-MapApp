@@ -1,0 +1,14 @@
+export const MAP ="Map";
+export const DETAIL="Detail";
+export const MYLOCATIONS="My Locations";
+export const ADDPIN="Add New Pin";
+export const EDITPINS="Edit Pins";
+export const LAUNCH="Launch";
+export const SIGNIN="Sign In";
+export const SIGNUP="Sign Up";
+export const PROFILE="Profile";
+export const TAB="Tab";
+export const FAVORITES ="Favorites";
+export const SELECTCOORDINATE ="Select Coordinate";
+export const ADDLOCATION ="Add Location";
+export const EDITPROFILE ="Edit Profile";
