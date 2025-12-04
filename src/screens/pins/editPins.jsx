@@ -8,7 +8,9 @@ import CustomButton from '../../components/ui/customButton';
 import ImageContainer from '../../components/ui/imageContaine';
 import ImagePicker from 'react-native-image-crop-picker'
 import FloatActionButton from '../../components/ui/floatActionButton';
-const EditPins = ({ route }) => {
+import Pins from '.';
+import { MYLOCATIONS } from '../../utils/routes';
+const EditPins = ({ route, navigation }) => {
 
     const { pin } = route?.params
 
@@ -56,6 +58,7 @@ const EditPins = ({ route }) => {
                 setLoading(false)
             })
 
+            navigation.navigate(MYLOCATIONS)
     }
 
     return (

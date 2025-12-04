@@ -15,7 +15,7 @@ const Profile = ({navigation}) => {
   const getUserUid = async () => {
     try {
       const uid = await AsyncStorage.getItem('uid');
-      console.log(uid)
+   
       if (uid !== null) {
         getUserInfo(uid)
       }

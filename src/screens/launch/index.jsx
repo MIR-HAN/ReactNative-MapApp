@@ -23,7 +23,7 @@ const Launch = ({ navigation }) => {
 
  {/*** */}
 
- <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+ <View style={{ flex: 1, justifyContent: "center", alignItems: "center", marginTop:20 }}>
   <Text style={{ fontSize: 35, fontWeight: "bold", color: Colors.GREEN, marginBottom: 10 }}>
     Hello
   </Text>
@@ -63,7 +63,7 @@ const Launch = ({ navigation }) => {
 
         <View style={{ flex: 2, justifyContent: "center" }}>
 
-          <View style={{ flex: 1, justifyContent: "center" }}>
+          <View style={{ flex: 2, justifyContent: "center", marginVertical:25 }}>
             <CustomButton
               onPress={() => navigation.navigate(SIGNIN)}
               title="Sing In" />
@@ -74,6 +74,7 @@ const Launch = ({ navigation }) => {
           </View>
 
           <View style={{ justifyContent: "center", alignItems: "center", marginVertical: 10, flex: 1 }}>
+           {/*
             <Text style={{ fontSize: 14, color: Colors.GRAY, marginBottom: 5, }}>Sign Up Using</Text>
 
             <View style={{ flexDirection: "row", paddingVertical: 10 }}>
@@ -81,6 +82,7 @@ const Launch = ({ navigation }) => {
               <Facebook size="32" variant='Bold' color={Colors.FACEBOOK} style={{ marginLeft: 10 }} />
               <Instagram size="32" color={Colors.INSTAGRAM} style={{ marginLeft: 10 }} />
             </View>
+           */}
 
           </View>
 

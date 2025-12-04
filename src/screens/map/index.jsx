@@ -19,21 +19,18 @@ const Map = ({ navigation }) => {
 
   const [mapType, setMapType] = useState("standard")
 
-  const [locations, setLocations] = useState([])
+  const [locations, setLocations] = useState([]) 
 
 
 
-  const getLocations = async () => {
-
-    await firestore()
+  const getLocations = () => {
+    // Firestore realtime listener
+    const subscriber = firestore()
       .collection("Locations")
-      .get()
-      .then(querySnapshot => {
-
+      .onSnapshot(querySnapshot => {
         const fetchedLocations = [];
-
-        querySnapshot.forEach((documentSnapshot) => {
-
+  
+        querySnapshot.forEach(documentSnapshot => {
           fetchedLocations.push({
             id: documentSnapshot.id,
             title: documentSnapshot.data().title,
@@ -42,17 +39,18 @@ const Map = ({ navigation }) => {
             point: documentSnapshot.data().point,
             coordinate: documentSnapshot.data().coordinate,
             image: documentSnapshot.data().image,
-            userId:documentSnapshot.data().userId,
-          })
-        })
-
-        setLocations(fetchedLocations)
-      }).catch((error) => {
-        Alert.alert("An error accured")
-      }).finally(() => {
-
-      })
-  }
+            userId: documentSnapshot.data().userId,
+          });
+        });
+  
+        setLocations(fetchedLocations);
+      }, error => {
+        Alert.alert("An error occurred while fetching locations");
+      });
+  
+    return subscriber; // return for clean up
+  };
+  
 
   const changeMapType = () => {
     if (mapType === "standard") {
@@ -78,7 +76,9 @@ const Map = ({ navigation }) => {
   useEffect(() => {
 
     getCurrentPosition();
-    getLocations();
+
+    const unsubscribe = getLocations(); // start listener
+    return () => unsubscribe();          // cleanup
 
 
   }, [])

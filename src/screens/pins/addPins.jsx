@@ -5,15 +5,21 @@ import CustomInput from '../../components/ui/customInput';
 import { Calendar, NoteAdd, NoteText } from 'iconsax-react-nativejs';
 import { screenStyle } from '../../styles/screenStyle';
 import CustomButton from '../../components/ui/customButton';
+import { useNavigation } from '@react-navigation/native';
+import Pins from '.';
+import { EDITPROFILE, FAVORITES, MAP, TAB } from '../../utils/routes';
+import { CommonActions } from '@react-navigation/native';
 
 const AddPins = () => {
 
     const [title, setTitle] = useState(null)
     const [desc, setDesc] = useState(null)
     const [date, setDate] = useState(null)
-    const [loading, setLoading]=useState(false)
+    const [loading, setLoading] = useState(false)
 
-    const savePin = () => {
+    const navigation = useNavigation()
+
+    const savePin = async () => {
         setLoading(true)
         const form = {
             title: title,
@@ -21,16 +27,17 @@ const AddPins = () => {
             date: date,
         }
 
-       firestore()
-          .collection('Pins')
-          .add(form)
-         .then(() => {
-            Alert.alert("Pin added successfuly")
-           }).catch((error)=>{
-          
-           }).finally(()=>{
-            setLoading(false)
-           })
+       await firestore()
+            .collection('Pins')
+            .add(form)
+            .then(() => {
+                Alert.alert("Pin added successfuly")
+            }).catch((error) => {
+
+            }).finally(() => {
+                setLoading(false)
+            })
+
 
     }
 
@@ -62,7 +69,7 @@ const AddPins = () => {
 
             <View style={{ flex: 1, justifyContent: "center" }}>
                 <CustomButton
-                loading={loading}
+                    loading={loading}
                     onPress={() => savePin()}
                     title="Add Pin" />
             </View>

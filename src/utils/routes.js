@@ -1,6 +1,6 @@
 export const MAP ="Map";
 export const DETAIL="Detail";
-export const MYLOCATIONS="My Locations";
+export const MYLOCATIONS="MyLocations";
 export const ADDPIN="Add New Pin";
 export const EDITPINS="Edit Pins";
 export const LAUNCH="Launch";

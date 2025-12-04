@@ -66,7 +66,7 @@ const RootNavigator = () => {
             headerShown:false
            }}
            name={TAB} component={TabNavigator}/>
-            <Stack.Screen name={ADDPIN} component={AddPins} />
+          
             <Stack.Screen name={EDITPINS} component={EditPins} />
             <Stack.Screen name={DETAIL} component={Detail} />
             <Stack.Screen name={SELECTCOORDINATE} component={SelectCoordinate} />

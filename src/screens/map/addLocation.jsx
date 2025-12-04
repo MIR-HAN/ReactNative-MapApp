@@ -9,14 +9,15 @@ import ImageContainer from '../../components/ui/imageContaine';
 import FloatActionButton from '../../components/ui/floatActionButton';
 import ImagePicker from 'react-native-image-crop-picker'
 import auth from "@react-native-firebase/auth"
-const AddLocation = ({ route }) => {
+import { TAB,} from '../../utils/routes';
+const AddLocation = ({ route, navigation }) => {
 
-    const [title, setTitle] = useState()
-    const [desc, setDesc] = useState()
-    const [date, setDate] = useState()
+    const [title, setTitle] = useState("")
+    const [desc, setDesc] = useState("")
+    const [date, setDate] = useState("")
     const [loading, setLoading] = useState(false)
-    const [point, setPoint] = useState()
-    const [image, setImage] = useState()
+    const [point, setPoint] = useState("")
+    const [image, setImage] = useState("")
     
 
     const { coordinate } = route?.params
@@ -42,13 +43,13 @@ const AddLocation = ({ route }) => {
 
         setLoading(true)
         const form = {
-            userId:user.uid,
-            title: title,
-            desc: desc,
-            point: point,
-            date: date,
-            coordinate: coordinate,
-            image: image ? `data:${image.mime};base64,${image.data}` : null
+            userId: user.uid,
+    title: title || null,       // boşsa null
+    desc: desc || null,
+    point: point || null,
+    date: date || null,
+    coordinate: coordinate || null,
+    image: image ? `data:${image.mime};base64,${image.data}` : null
 
         }
 
@@ -62,6 +63,8 @@ const AddLocation = ({ route }) => {
             }).finally(() => {
                 setLoading(false)
             })
+
+            navigation.navigate(TAB)
 
     }
 

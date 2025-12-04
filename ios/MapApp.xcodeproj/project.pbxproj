@@ -597,7 +597,7 @@
 				);
 				INFOPLIST_FILE = MapApp/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Mapel;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -608,7 +608,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.Mirhan.MappleFresh;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Mirhan.Mapple;
 				PRODUCT_NAME = MapApp;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -711,7 +711,7 @@
 				);
 				INFOPLIST_FILE = MapApp/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Mapel;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -722,7 +722,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.Mirhan.MappleFresh;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Mirhan.Mapple;
 				PRODUCT_NAME = MapApp;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";

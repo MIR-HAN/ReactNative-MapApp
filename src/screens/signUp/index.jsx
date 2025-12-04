@@ -13,11 +13,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SignUp = () => {
 
-  const [email, setEmail] = useState()
-  const [password, setPassword] = useState()
-  const [name, setName] = useState()
-  const [surname, setSurname] = useState()
-  const [userType, setUserType] = useState()
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [name, setName] = useState("")
+  const [surname, setSurname] = useState("")
+  const [userType, setUserType] = useState("")
   const [loading, setLoading] = useState(false)
 
 
@@ -28,8 +28,7 @@ const SignUp = () => {
       // saving error
     }
   };
-
-
+123
   const saveUser = (userId) => {
 
 const form ={
@@ -54,27 +53,66 @@ const form ={
 
   const handleSingUp = () => {
 
-    setLoading(true)
-
+    // ---- REQUIRED FIELDS ----
+    if (!email.trim()) {
+      Alert.alert("Email is required");
+      return;
+    }
+  
+    if (!password.trim()) {
+      Alert.alert("Password is required");
+      return;
+    }
+  
+    if (password.length < 6) {
+      Alert.alert("Password must be at least 6 characters");
+      return;
+    }
+  
+    if (!name.trim()) {
+      Alert.alert("Name is required");
+      return;
+    }
+  
+    // ---- OPTIONAL FIELDS ----
+    const safeSurname = surname || "";
+    const safeUserType = userType || "";
+  
+    setLoading(true);
+  
     auth()
       .createUserWithEmailAndPassword(email, password)
       .then((response) => {
-       saveUser(response.user.uid)
-       setUserUid(response.user.uid)
-        Alert.alert("User account created & singed in")
+        
+        // Firestore'a zorunlu + opsiyonel alanları kaydet
+        const form = {
+          userId: response.user.uid,
+          name: name,
+          surname: safeSurname,      // boşsa ""
+          userType: safeUserType,    // boşsa ""
+          email: email,
+        };
+  
+        firestore()
+          .collection("Users")
+          .doc(response.user.uid)
+          .set(form);
+  
+        setUserUid(response.user.uid);
+        Alert.alert("User account created successfully");
       })
       .catch(error => {
         if (error.code === "auth/email-already-in-use") {
-          Alert.alert("That email is already in use")
-        }
-        if (error.code === "auth/invalid-email") {
-          Alert.alert("That email address is invalid")
+          Alert.alert("That email is already in use");
+        } else if (error.code === "auth/invalid-email") {
+          Alert.alert("Invalid email format");
+        } else {
+          Alert.alert("Error:", error.message);
         }
       })
-      .finally(() => {
-        setLoading(false)
-      })
-  }
+      .finally(() => setLoading(false));
+  };
+  
 
   return (
     <SafeAreaView style={screenStyle.safeAreaView}>
@@ -107,12 +145,12 @@ const form ={
           <CustomInput
             icon={<User color={Colors.BLACK} variant='Bold' />}
             onChangeText={(value => setSurname(value))}
-            value={surname}  inputTitle={"Surname"} placeholder="Surname" />
+            value={surname} optional={true} inputTitle={"Surname"} placeholder="Surname" />
 
           <CustomInput
             icon={<UserTag color={Colors.BLACK} variant='Bold' />}
             onChangeText={(value => setUserType(value))}
-            value={userType}  inputTitle={"User Type"} placeholder="User Type" />
+            value={userType} optional={true}  inputTitle={"User Type"} placeholder="User Type" />
 
         </View>
 

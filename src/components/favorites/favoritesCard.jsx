@@ -86,7 +86,7 @@ const FavoritesCard = ({ favorite, index, showEdit = false, onEdit, onDelete,typ
 
           {showEdit && <TouchableOpacity
             onPress={onEdit}
-            style={{ backgroundColor: Colors.GRAY, borderRadius: 100, padding: 8, }}>
+            style={{ backgroundColor: Colors.GRAY, borderRadius: 100, padding: 8, marginHorizontal:3 }}>
             <Edit2 size={15} variant='Bold' color={Colors.WHITE} />
           </TouchableOpacity>
           }

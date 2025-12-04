@@ -9,6 +9,7 @@ import CustomInput from '../../components/ui/customInput';
 import { Bag, Bag2, EmojiNormal, EmptyWalletTime, Key, Message, Sms, User } from 'iconsax-react-nativejs';
 import firestore from '@react-native-firebase/firestore';
 import Avatar from '../../components/ui/avatar';
+import { PROFILE } from '../../utils/routes';
 
 
 const ProfileUpdate = ({ route, navigation }) => {
@@ -44,6 +45,8 @@ const ProfileUpdate = ({ route, navigation }) => {
             }).finally(()=>{
                 setLoading(false)
             })
+
+            navigation.navigate(PROFILE)
     }
 
 

@@ -17,50 +17,32 @@ const Pins = ({ navigation }) => {
   const [myLocations, setMylocations] = useState([]);
   const [pending, setPending] = useState(true);
 
-  const getMyLocations = async () => {
-    try {
-      const user = auth().currentUser;
-      if (!user) return
-      await firestore()
-        .collection("Locations")
-        .where('userId', "==", auth().currentUser.uid)
-        .get()
-        .then(querySnapshot => {
-          const fetchedMyLocations = [];
-
-          querySnapshot.forEach((documentSnapshot) => {
-            fetchedMyLocations.push({
-              id: documentSnapshot.id,
-              title: documentSnapshot.data()?.title,
-              desc: documentSnapshot.data()?.desc,
-              date: documentSnapshot.data()?.date,
-              point: documentSnapshot.data()?.point,
-              coordinate: documentSnapshot.data()?.coordinate,
-              image: documentSnapshot.data()?.image,
-            });
-          });
-
-          setMylocations(fetchedMyLocations);
-        })
-        .catch((error) => {
-          Alert.alert("An error occurred");
-        })
-        .finally(() => {
-          setPending(false);
+  const getMyLocations = () => {
+    const user = auth().currentUser;
+    if (!user) return;
+  
+    const subscriber = firestore()
+      .collection("Locations")
+      .where('userId', '==', user.uid)
+      .onSnapshot(snapshot => {
+        const fetched = [];
+        snapshot.forEach(doc => {
+          fetched.push({ id: doc.id, ...doc.data() });
         });
-    } catch (error) {
-      console.log(error);
-      setPending(false);
-    }
+        setMylocations(fetched);
+        setPending(false);
+      });
+  
+    return subscriber; // cleanup için dönebilirsin
   };
-
- 
-
+  
   useEffect(() => {
-
-    getMyLocations();
-
-  }, [])
+    const subscriber = getMyLocations();
+  
+    return () => subscriber && subscriber(); // component unmount cleanup
+  }, []);
+  
+ 
 
   return (
     <View style={screenStyle.container}>

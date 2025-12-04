@@ -16,6 +16,7 @@ export default function TabNavigator(){
     return(
 
         <Tab.Navigator
+        initialRouteName={MAP}
         screenOptions={({route})=> ({
             tabBarIcon:({focused, color, size})=>(
                 <TabIcon
