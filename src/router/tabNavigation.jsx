@@ -8,8 +8,6 @@ import { MAP, PINS, PROFILE,FAVORITES, MYLOCATIONS } from "../utils/routes";
 
 const { createBottomTabNavigator } = require("@react-navigation/bottom-tabs");
 
-
-
 const Tab =createBottomTabNavigator();
 
 export default function TabNavigator(){

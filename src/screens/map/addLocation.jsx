@@ -9,7 +9,7 @@ import ImageContainer from '../../components/ui/imageContaine';
 import FloatActionButton from '../../components/ui/floatActionButton';
 import ImagePicker from 'react-native-image-crop-picker'
 import auth from "@react-native-firebase/auth"
-import { TAB,} from '../../utils/routes';
+import { TAB, } from '../../utils/routes';
 const AddLocation = ({ route, navigation }) => {
 
     const [title, setTitle] = useState("")
@@ -18,7 +18,7 @@ const AddLocation = ({ route, navigation }) => {
     const [loading, setLoading] = useState(false)
     const [point, setPoint] = useState("")
     const [image, setImage] = useState("")
-    
+
 
     const { coordinate } = route?.params
 
@@ -44,12 +44,12 @@ const AddLocation = ({ route, navigation }) => {
         setLoading(true)
         const form = {
             userId: user.uid,
-    title: title || null,       // boşsa null
-    desc: desc || null,
-    point: point || null,
-    date: date || null,
-    coordinate: coordinate || null,
-    image: image ? `data:${image.mime};base64,${image.data}` : null
+            title: title || null,       
+            desc: desc || null,
+            point: point || null,
+            date: date || null,
+            coordinate: coordinate || null,
+            image: image ? `data:${image.mime};base64,${image.data}` : null
 
         }
 
@@ -64,7 +64,7 @@ const AddLocation = ({ route, navigation }) => {
                 setLoading(false)
             })
 
-            navigation.navigate(TAB)
+        navigation.navigate(TAB)
 
     }
 
@@ -104,14 +104,14 @@ const AddLocation = ({ route, navigation }) => {
 
 
             <View style={{ flex: 1, justifyContent: "center" }}>
-              <ImageContainer image={image}  />
-                <FloatActionButton 
-                onPress={pickImage}
-                customStyle={{
-                    right:10,
-                    bottom:10
-                }}
-                icon={<Add/>}
+                <ImageContainer image={image} />
+                <FloatActionButton
+                    onPress={pickImage}
+                    customStyle={{
+                        right: 10,
+                        bottom: 10
+                    }}
+                    icon={<Add />}
                 />
             </View>
 
