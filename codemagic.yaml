@@ -6,15 +6,28 @@ workflows:
     environment:
       vars:
         GOOGLE_MAPS_API_KEY: Encrypted
-      node: 20.19.5   
+      node: 20.19.5
     scripts:
       - name: Install dependencies
         script: |
+          # Node ve npm paketlerini yükle
           npm install --legacy-peer-deps
+          
+          # iOS klasörüne geç
           cd ios
+          
+          # Belirli versiyonda CocoaPods yükle
           sudo gem install cocoapods -v 1.16.2
-          pod cache clean boost
-          pod install --repo-update
+          
+          # Sadece boost cache'ini temizle
+          pod cache clean boost --all
+          
+          # boost'u güncelle ve repo'ları güncel tut
+          pod update boost --repo-update
+          
+          # Diğer podlar için kurulum
+          pod install
+          
       - name: iOS build
         script: |
           cd ios
