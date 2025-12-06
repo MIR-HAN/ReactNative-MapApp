@@ -12,17 +12,9 @@ workflows:
         script: |
          
           npm install --legacy-peer-deps
-
-          cd ios
-
-          
-          sudo gem install cocoapods -v 1.16.2
-
-          pod cache clean boost --all
-
      
-          pod install --repo-update
-
+          pod install 
+          
       - name: iOS build
         script: |
           cd ios
