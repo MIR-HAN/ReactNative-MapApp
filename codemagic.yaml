@@ -12,6 +12,7 @@ workflows:
         script: |
           npm install --legacy-peer-deps
           cd ios
+          pod cache clean boost
           pod install --repo-update
       - name: iOS build
         script: |
