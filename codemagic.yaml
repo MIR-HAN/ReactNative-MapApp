@@ -7,20 +7,15 @@ workflows:
       vars:
         GOOGLE_MAPS_API_KEY: Encrypted
       node: 20.19.5
-    cache: none 
+    cache: none
     scripts:
       - name: Install dependencies
         script: |
-               npm install --legacy-peer-deps
-      
-      cd ios
-      sudo gem install cocoapods -v 1.16.2
-      
-      pod cache clean --all
-      pod repo update
-      pod install
-          
-          
+          npm install --legacy-peer-deps
+          cd ios
+          sudo gem install cocoapods -v 1.16.2
+          pod cache clean boost --all
+          pod install --repo-update
       - name: iOS build
         script: |
           cd ios
