@@ -6,12 +6,14 @@ workflows:
     environment:
       vars:
         GOOGLE_MAPS_API_KEY: Encrypted
+      node: 20.19.5   # Projenin Node sürümüyle uyumlu olacak şekilde ayarla
     scripts:
       - name: Install dependencies
         script: |
           npm install
+          cd ios
+          pod install --repo-update
       - name: iOS build
         script: |
           cd ios
-          pod install
           xcodebuild -workspace MapApp.xcworkspace -scheme MapApp -sdk iphoneos -configuration Release
