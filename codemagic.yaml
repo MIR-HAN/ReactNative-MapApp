@@ -10,23 +10,17 @@ workflows:
     scripts:
       - name: Install dependencies
         script: |
-          # Node paketlerini yükle
+         
           npm install --legacy-peer-deps
 
           cd ios
 
-          # CocoaPods yükle
+          
           sudo gem install cocoapods -v 1.16.2
 
-          # Boost cache temizle
           pod cache clean boost --all
 
-          # Opsiyonel: boost tarball'ını manuel indirip cache'e koy (checksum sorununu önler)
-          mkdir -p ~/.cocoapods/cache/boost
-          curl -L https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.gz \
-            -o ~/.cocoapods/cache/boost/boost_1_76_0.tar.gz
-
-          # Podları repo güncel haliyle yükle
+     
           pod install --repo-update
 
       - name: iOS build
