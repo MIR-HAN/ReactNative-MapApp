@@ -6,11 +6,11 @@ workflows:
     environment:
       vars:
         GOOGLE_MAPS_API_KEY: Encrypted
-      node: 20.19.5   # Projenin Node sürümüyle uyumlu olacak şekilde ayarla
+      node: 20.19.5  
     scripts:
       - name: Install dependencies
         script: |
-          npm install
+          npm install --legacy-peer-deps
           cd ios
           pod install --repo-update
       - name: iOS build
