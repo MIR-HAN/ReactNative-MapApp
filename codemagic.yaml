@@ -7,7 +7,7 @@ workflows:
       vars:
         GOOGLE_MAPS_API_KEY: Encrypted
       node: 20.19.5
-    cache: none
+
     scripts:
       - name: Install dependencies
         script: |
