@@ -7,14 +7,24 @@ workflows:
       vars:
         GOOGLE_MAPS_API_KEY: Encrypted
       node: 20.19.5
+
     scripts:
+
+      - name: Install Ruby 3.2 and CocoaPods
+        script: |
+          brew install ruby
+          echo 'export PATH="/usr/local/opt/ruby/bin:$PATH"' >> ~/.bash_profile
+          source ~/.bash_profile
+          gem install cocoapods -v 1.14.3
+
       - name: Install dependencies
         script: |
-         
           npm install --legacy-peer-deps
-     
-          pod install 
-          
+          cd ios
+          pod repo update
+          pod cache clean --all
+          pod install --clean-install
+
       - name: iOS build
         script: |
           cd ios
