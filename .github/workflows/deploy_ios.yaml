@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v4
 
       # --- MANUEL RUBY KURULUMU (KESİN ÇÖZÜM) ---
-      # setup-ruby aksiyonu kaldırıldı. Başarılı senaryodaki PATH ekleme hilesini kullanıyoruz.
+      # setup-ruby aksiyonu kaldırıldı. Bu, 3.0.7 kilitlenmesini çözen hiledir.
       - name: Force Ruby 3.3.x via PATH (Bypass 3.0.7 Lock)
         run: |
           # 3.2 PATH'ini zorla; Runner sistemi otomatik olarak 3.3.x'i bulup kullanacaktır.
@@ -30,13 +30,13 @@ jobs:
 
       - name: Install Ruby Dependencies (Bundler)
         run: |
-          # 1. Gemfile.lock dosyasını silerek yeni bir çözümlemeye zorla (Kalıntı kilitleri temizler)
+          # 1. Gemfile.lock dosyasını sil (Kalıntı kilitleri ve eski versiyon bilgilerini temizler)
           rm -f Gemfile.lock
           # 2. Bundler'ın yeni versiyonuna uygun olarak "deployment false" ayarını kullanıyoruz.
           bundle config set --local deployment false
           # 3. Path ayarını yap
           bundle config set --local path 'vendor/bundle'
-          # 4. Yeni ayarlarla bundle install çalıştır
+          # 4. Yeni ayarlarla bundle install çalıştır (Sıfırdan kilit dosyası oluşturulur)
           bundle install --jobs 3
           
       - name: Setup Node.js
@@ -47,7 +47,7 @@ jobs:
       - name: Install Dependencies (npm/yarn)
         run: npm install --legacy-peer-deps 
 
-      # CocoaPods Önbelleği (Eski boost/checksum hatasına karşı koruma)
+      # CocoaPods Önbelleği (Geri gelmesi muhtemel boost/checksum hatasına karşı koruma)
       - name: Clean CocoaPods Cache and Repos
         run: |
           pod cache clean --all
