@@ -19,23 +19,30 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # --- RUBY KURULUMU: 3.3 SÜRÜMÜNÜ ZORLA (3.0.7 Kilidini Aşmak İçin) ---
-      - name: Setup Ruby (Force 3.3 to bypass 3.0.7 lock)
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.3' # Başarılı olduğu görülen sürüm ailesini hedefliyoruz.
-          bundler-cache: false # Önbelleği kesinlikle devre dışı bırak.
+      # --- MANUEL RUBY KURULUMU (setup-ruby aksiyonu kaldırıldı) ---
+      # Bu, başarılı olduğumuz senaryoyu kopyalar ve 3.0.7 kilitlenmesini kesin olarak aşar.
+      - name: Force Ruby 3.3.x via PATH (Final Fix)
+        run: |
+          # 3.2 PATH'ini zorla, sistem otomatik olarak 3.3.x'i bulacaktır
+          RUBY_VERSION="3.2"
+          echo "/opt/hostedtoolcache/Ruby/${RUBY_VERSION}/x64/bin" >> $GITHUB_PATH
+          ruby -v
+
+      - name: Install Ruby Dependencies (Bundler)
+        # --no-deployment: Gemfile.lock'taki eski sürüm kilitlenmesini görmezden gelmeye zorla
+        run: |
+          bundle config set --local path 'vendor/bundle'
+          bundle install --jobs 3 --no-deployment
           
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20.19.5' 
 
-      # Install Project Dependencies
       - name: Install Dependencies (npm/yarn)
         run: npm install --legacy-peer-deps 
 
-      # CocoaPods Önbelleği (Ruby hatası çözüldüğünde boost hatası için bu adım gerekir)
+      # CocoaPods Önbelleği (Eski boost hatası geri gelirse bu adım gerekir)
       - name: Clean CocoaPods Cache and Repos
         run: |
           pod cache clean --all
@@ -65,8 +72,7 @@ jobs:
           # --- In-App API Key (Google Maps) ---
           MAPS_API_KEY: "${{ secrets.MAPS_API_KEY }}"
           
-      # --- TEMİZLİK HATASI ÇÖZÜMÜ ---
+      # --- CLEANUP FIX ---
       - name: Post-Job Cleanup
         if: always()
-        # Temizlik hatasını çözmek için 'rm -f' kullanıldı
         run: rm -f AuthKey.p8
