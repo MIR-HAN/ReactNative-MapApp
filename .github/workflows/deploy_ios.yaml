@@ -22,8 +22,9 @@ jobs:
      - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          # BURASI '3.3' OLMALI
-          ruby-version: '3.3' 
+          # Gemfile.lock'taki sürüme uyumlu olması için 3.2 yapıyoruz.
+          ruby-version: '3.2' 
+          # bundler-cache: true ile Gemfile.lock'a uyacak.
           bundler-cache: true
 
       - name: Setup Node.js
