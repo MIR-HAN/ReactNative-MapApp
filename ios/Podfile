@@ -10,6 +10,23 @@ prepare_react_native_project!
 linkage = ENV['USE_FRAMEWORKS']
 use_frameworks! :linkage => linkage.to_sym if linkage
 
+# --------------------------------------------------------
+# ONLY CI: Boost checksum override (lokalde çalışmaz!)
+# --------------------------------------------------------
+pre_install do |installer|
+  if ENV['CI'] == 'true'
+    installer.analysis_result.specifications.each do |spec|
+      if spec.name == 'boost'
+        puts "⚠️  CI ortamı: BOOST checksum override uygulanıyor."
+        spec.checksum = '1c162b579a423fa6876c6c5bc16d39ab4bc05e28898977a0a6af345f523f6357'
+      end
+    end
+  else
+    puts "ℹ️ Lokal ortam: checksum override devre dışı."
+  end
+end
+# --------------------------------------------------------
+
 target 'MapApp' do
   use_native_modules!
 
@@ -25,38 +42,29 @@ target 'MapApp' do
   rn_maps_path = '../node_modules/react-native-maps'
   pod 'react-native-google-maps', :path => rn_maps_path
 
-  # Orijinal boost podspec tanımı geri getirildi
   pod 'boost', :podspec => '../node_modules/react-native/third-party-podspecs/boost.podspec'
- 
-  pod 'RCT-Folly', :podspec => '../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec' 
+  pod 'RCT-Folly', :podspec => '../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec'
 
   target 'MapAppTests' do
     inherit! :complete
   end
 end
 
-
 post_install do |installer|
   react_native_post_install(installer, "../node_modules/react-native", :mac_catalyst_enabled => false)
 
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
-      # iOS deployment target
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.4'
-      
-     
-      if target.name == 'RCT-Folly'
-        target.build_configurations.each do |config|
-          config.build_settings['OTHER_CPLUSPLUSFLAGS'] ||= ['$(inherited)']
-          config.build_settings['OTHER_CPLUSPLUSFLAGS'] << '-D__FOLLY_NO_CLOCKID_T_TYPEDEF__'
-          config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
-          config.build_settings['CLANG_CXX_LIBRARY'] = 'libc++'
-          config.build_settings['ONLY_ACTIVE_ARCH'] = 'NO'
-        end
-      end
-      
 
-      # C++ standard
+      if target.name == 'RCT-Folly'
+        config.build_settings['OTHER_CPLUSPLUSFLAGS'] ||= ['$(inherited)']
+        config.build_settings['OTHER_CPLUSPLUSFLAGS'] << '-D__FOLLY_NO_CLOCKID_T_TYPEDEF__'
+        config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
+        config.build_settings['CLANG_CXX_LIBRARY'] = 'libc++'
+        config.build_settings['ONLY_ACTIVE_ARCH'] = 'NO'
+      end
+
       config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
       config.build_settings['CXX_STANDARD'] = '17'
       config.build_settings['CLANG_CXX_LIBRARY'] = 'libc++'
