@@ -22,12 +22,25 @@ jobs:
       # --- RUBY SETUP AND FIXES ---
 
       # 2. Force Ruby 3.2, disable caching, and specify Gemfile path to resolve the 3.0.7 lock issue.
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.2' 
-          bundler-cache: false # Disable cache to prevent 3.0.7 lock
-          gemfile: Gemfile # Explicitly point to the root Gemfile
+      # --- MANUEL RUBY KURULUMU ve BUNDLER ---
+      - name: Ruby 3.2'yi Kur (Kalıcı Kilitlenmeyi Aşmak İçin)
+        # Sistemde yüklü olan Ruby 3.2'yi kullanmasını sağlıyoruz
+        run: |
+          RUBY_VERSION="3.2"
+          # Sistemdeki 3.2 sürümünün yolunu PATH'e ekle (macos-latest üzerinde 3.2'nin yolu budur)
+          echo "/opt/hostedtoolcache/Ruby/${RUBY_VERSION}/x64/bin" >> $GITHUB_PATH
+          # Sürümün doğru kurulduğunu doğrula
+          ruby -v
+
+      - name: Eski Gemfile.lock'ı Sil (Ruby Kilitlenme Sorunu Çözümü)
+        run: rm -f Gemfile.lock
+
+      - name: Fastlane Bağımlılıklarını Kur (Manuel Bundle)
+        # Kök dizindeki Gemfile'ı kullanarak, hiçbir önbellek kullanmadan 3.2 ile kurulum yap
+        run: |
+          bundle config set --local path 'vendor/bundle'
+          # deployment flag'i yerine sadece gemfile'ı belirtiyoruz
+          bundle install --gemfile=Gemfile --jobs 3
 
       # 3. Aggressive Fix: Delete Gemfile.lock in the CI environment to force bundle install 
       # to create a new lock file compatible with Ruby 3.2.
