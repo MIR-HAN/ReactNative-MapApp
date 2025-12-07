@@ -4,61 +4,41 @@ name: iOS App Store Deployment (React Native)
 
 on:
   push:
-    # 1. Prevent double triggering by only running on tag pushes
+    # Çift tetiklemeyi önlemek için eklenmişti
     branches: [] 
     tags:
       - 'v*.*.*' 
-  workflow_dispatch: # Enable manual triggering from the GitHub interface
+  workflow_dispatch: 
 
 jobs:
   deploy:
-    runs-on: macos-latest
+    runs-on: macos-latest 
     environment: production 
 
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      # --- RUBY SETUP AND FIXES ---
-
-      # 2. Force Ruby 3.2, disable caching, and specify Gemfile path to resolve the 3.0.7 lock issue.
-      # --- MANUEL RUBY KURULUMU ve BUNDLER ---
-      - name: Ruby 3.2'yi Kur (Kalıcı Kilitlenmeyi Aşmak İçin)
-        # Sistemde yüklü olan Ruby 3.2'yi kullanmasını sağlıyoruz
-        run: |
-          RUBY_VERSION="3.2"
-          # Sistemdeki 3.2 sürümünün yolunu PATH'e ekle (macos-latest üzerinde 3.2'nin yolu budur)
-          echo "/opt/hostedtoolcache/Ruby/${RUBY_VERSION}/x64/bin" >> $GITHUB_PATH
-          # Sürümün doğru kurulduğunu doğrula
-          ruby -v
-
-      - name: Eski Gemfile.lock'ı Sil (Ruby Kilitlenme Sorunu Çözümü)
-        run: rm -f Gemfile.lock
-
-      - name: Fastlane Bağımlılıklarını Kur (Manuel Bundle)
-        # Kök dizindeki Gemfile'ı kullanarak, hiçbir önbellek kullanmadan 3.2 ile kurulum yap
-        run: |
-          bundle config set --local path 'vendor/bundle'
-          # deployment flag'i yerine sadece gemfile'ı belirtiyoruz
-          bundle install --gemfile=Gemfile --jobs 3
-
-      # 3. Aggressive Fix: Delete Gemfile.lock in the CI environment to force bundle install 
-      # to create a new lock file compatible with Ruby 3.2.
-      - name: Delete Gemfile.lock (Fix Ruby 3.0.7 Lock)
-        run: rm -f Gemfile.lock
+      # --- RUBY KURULUMU (İlk başarılı çözümdeki ayarlar) ---
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2' 
+          # Bu, 3.0.7 kilitlenmesini ilk aşmaya çalıştığımız ayardı
+          bundler-cache: false 
+          # Gemfile yolu ilk başta yoktu ama sonradan ekledik. Bu versiyonda sade tutuyorum.
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20.19.5' 
 
-      # --- DEPENDENCIES AND PODS ---
-      
-      - name: Install Dependencies (npm)
+      # Install Project Dependencies
+      - name: Install Dependencies (npm/yarn)
         run: npm install --legacy-peer-deps 
 
-      # 4. Clean up CocoaPods cache to solve the 'boost' checksum verification error.
-      - name: Clean CocoaPods Cache and Update Repos
+      # Bu adım boost hatasını çözmek için eklenmişti. Ruby hatasının geri gelmesiyle silinmesi gerekebilir.
+      - name: Clean CocoaPods Cache and Repos
         run: |
           pod cache clean --all
           pod repo update
@@ -66,16 +46,16 @@ jobs:
       - name: Install iOS Pods
         run: cd ios && pod install
         
-      # --- FASTLANE AND CLEANUP ---
-      
+      # Writes the P8 API Key content to a temporary file for security
       - name: Create P8 Key File
         run: |
           echo "${{ secrets.P8_KEY_FILE_CONTENT }}" > AuthKey.p8
           
+      # Upload to App Store using Fastlane
       - name: Upload to App Store via Fastlane
         run: bundle exec fastlane deploy_appstore
         env:
-          # --- Apple API and Fastlane Variables ---
+          # --- Apple API and Fastlane Variables (Authentication) ---
           API_KEY_PATH: ${{ github.workspace }}/AuthKey.p8
           APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER_ID }}
@@ -83,10 +63,12 @@ jobs:
           FASTLANE_TEAM_ID: "${{ secrets.FASTLANE_TEAM_ID }}"
           FASTLANE_APPLE_ID: "${{ secrets.FASTLANE_APPLE_ID }}"
           FASTLANE_PASSWORD: "${{ secrets.FASTLANE_PASSWORD }}"
+          
+          # --- In-App API Key (Google Maps) ---
           MAPS_API_KEY: "${{ secrets.MAPS_API_KEY }}"
           
-      # 5. Safer Cleanup: Use 'rm -f' with 'if: always()' to ensure the workflow finishes 
-      # even if the key file wasn't created due to an earlier failure.
+      # --- TEMİZLİK HATASI ÇÖZÜMÜ ---
       - name: Post-Job Cleanup
         if: always()
+        # Temizlik hatasını çözmek için 'rm -f' kullanıldı
         run: rm -f AuthKey.p8
