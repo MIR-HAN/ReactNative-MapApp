@@ -19,17 +19,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # --- MANUEL RUBY KURULUMU (3.0.7 Kilidini Aşmak İçin) ---
-      - name: Force Ruby 3.3.x via PATH (Success Confirmed)
+      # --- MANUEL RUBY KURULUMU (KESİN ÇÖZÜM) ---
+      # setup-ruby aksiyonu kaldırıldı. Başarılı senaryodaki PATH ekleme hilesini kullanıyoruz.
+      - name: Force Ruby 3.3.x via PATH (Bypass 3.0.7 Lock)
         run: |
-          # 3.2 PATH'ini zorla, sistem otomatik olarak 3.3.x'i bulacaktır
+          # 3.2 PATH'ini zorla; Runner sistemi otomatik olarak 3.3.x'i bulup kullanacaktır.
           RUBY_VERSION="3.2"
           echo "/opt/hostedtoolcache/Ruby/${RUBY_VERSION}/x64/bin" >> $GITHUB_PATH
           ruby -v
 
       - name: Install Ruby Dependencies (Bundler)
         run: |
-          # Yeni Bundler komutu: --no-deployment yerine "config set deployment false" kullanıyoruz
+          # Bundler'ın yeni versiyonuna uygun olarak "deployment false" ayarını kullanıyoruz.
           bundle config set --local deployment false
           bundle config set --local path 'vendor/bundle'
           bundle install --jobs 3
