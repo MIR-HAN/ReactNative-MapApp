@@ -1,0 +1,28 @@
+# ios/fastlane/Fastfile
+
+# ... (başlangıçtaki yorumları ve varsayılan ayarları değiştirmeyin)
+
+default_platform(:ios)
+
+platform :ios do
+  # Lane adını GitHub Actions'ta kullandığımız isimle eşleştiriyoruz.
+  desc "Uygulamayı App Store Connect'e yükler (CI/CD için)"
+  lane :deploy_appstore do 
+    
+    # ⚠️ build_app parametrelerini kontrol ediyoruz
+    build_app(
+      workspace: "MapApp.xcworkspace", 
+      scheme: "MapApp",
+      clean: true, # Temiz derleme yapılmasını sağlar
+      export_method: "appstore", # App Store'a yükleme için gereklidir
+      export_options: {
+        signingStyle: "automatic" # Kod imzalama için otomasyonu tercih ederiz
+      }
+    )
+    
+    upload_to_app_store(
+      skip_metadata: true, 
+      skip_screenshots: true
+    )
+  end
+end
