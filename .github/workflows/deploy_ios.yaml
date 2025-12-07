@@ -1,63 +1,68 @@
 # File: .github/workflows/deploy_ios.yml
 
-name: iOS App Store Dağıtımı (React Native) # İş Akışı Adı
+name: iOS App Store Deployment (React Native) 
 
 on:
   push:
-    # 1. Çift tetiklemeyi önlemek için sadece etiket (tag) gönderme olaylarında çalışır.
+    # 1. Prevent double triggering by only running on tag pushes
     branches: [] 
     tags:
       - 'v*.*.*' 
-  workflow_dispatch: # GitHub arayüzünden manuel başlatmayı etkinleştirir
+  workflow_dispatch: # Enable manual triggering from the GitHub interface
 
 jobs:
   deploy:
-    runs-on: macos-latest # Apple derlemesi için en son Xcode/SDK içeren ortam
+    runs-on: macos-latest
     environment: production 
 
     steps:
-      - name: Kodu Çek
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      # --- KURULUM ADIMLARI ---
+      # --- RUBY SETUP AND FIXES ---
 
-      # 2. Ruby 3.2 sürümüne kilitlenmeye zorlamak için önbelleği (cache) devre dışı bırakıyoruz 
-      # ve Gemfile yolunu açıkça belirtiyoruz.
-      - name: Ruby Kurulumu
+      # 2. Force Ruby 3.2, disable caching, and specify Gemfile path to resolve the 3.0.7 lock issue.
+      - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2' 
-          bundler-cache: false
-          gemfile: Gemfile # Kök dizindeki Gemfile'ı kullanmaya zorla
+          bundler-cache: false # Disable cache to prevent 3.0.7 lock
+          gemfile: Gemfile # Explicitly point to the root Gemfile
 
-      - name: Node.js Kurulumu
+      # 3. Aggressive Fix: Delete Gemfile.lock in the CI environment to force bundle install 
+      # to create a new lock file compatible with Ruby 3.2.
+      - name: Delete Gemfile.lock (Fix Ruby 3.0.7 Lock)
+        run: rm -f Gemfile.lock
+
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20.19.5' 
 
-      - name: Bağımlılıkları Kur (npm)
-        # Peer dependency sorunlarını çözmek için flag kullanıyoruz
+      # --- DEPENDENCIES AND PODS ---
+      
+      - name: Install Dependencies (npm)
         run: npm install --legacy-peer-deps 
 
-      # 3. 'boost' pod checksum hatasını çözmek için Pods yüklemeden önce önbelleği temizliyoruz.
-      - name: CocoaPods Önbelleğini Temizle ve Repo'ları Güncelle
+      # 4. Clean up CocoaPods cache to solve the 'boost' checksum verification error.
+      - name: Clean CocoaPods Cache and Update Repos
         run: |
           pod cache clean --all
           pod repo update
         
-      - name: iOS Pods Kurulumu
+      - name: Install iOS Pods
         run: cd ios && pod install
         
-      # --- FASTLANE VE DERLEME ADIMLARI ---
-
-      - name: P8 Anahtar Dosyasını Oluştur
+      # --- FASTLANE AND CLEANUP ---
+      
+      - name: Create P8 Key File
         run: |
           echo "${{ secrets.P8_KEY_FILE_CONTENT }}" > AuthKey.p8
           
-      - name: Fastlane ile App Store'a Yükle
+      - name: Upload to App Store via Fastlane
         run: bundle exec fastlane deploy_appstore
         env:
-          # --- Apple API ve Fastlane Değişkenleri ---
+          # --- Apple API and Fastlane Variables ---
           API_KEY_PATH: ${{ github.workspace }}/AuthKey.p8
           APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER_ID }}
@@ -65,11 +70,10 @@ jobs:
           FASTLANE_TEAM_ID: "${{ secrets.FASTLANE_TEAM_ID }}"
           FASTLANE_APPLE_ID: "${{ secrets.FASTLANE_APPLE_ID }}"
           FASTLANE_PASSWORD: "${{ secrets.FASTLANE_PASSWORD }}"
-          
-          # --- Uygulama İçi API Anahtarı ---
           MAPS_API_KEY: "${{ secrets.MAPS_API_KEY }}"
           
-      # 4. Temizlik hatasını önlemek için (if: always) koşulu ve (-f) flag'i kullanılıyor.
-      - name: İş Sonrası Temizlik
+      # 5. Safer Cleanup: Use 'rm -f' with 'if: always()' to ensure the workflow finishes 
+      # even if the key file wasn't created due to an earlier failure.
+      - name: Post-Job Cleanup
         if: always()
         run: rm -f AuthKey.p8
