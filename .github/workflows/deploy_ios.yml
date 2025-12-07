@@ -1,52 +1,73 @@
-name: iOS Build
+# File: .github/workflows/deploy_ios.yml
+
+name: iOS App Store Deployment (React Native)
 
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*.*.*' # Sadece v*.*.* tag push'larında çalışacak
+  workflow_dispatch: # Manuel tetikleme
 
 jobs:
-  build-ios:
+  deploy:
     runs-on: macos-latest
+    environment: production
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+      # 1️⃣ Repo'yu checkout et
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-
-      - name: Install Yarn Dependencies
-        run: yarn install --frozen-lockfile
-
+      # 2️⃣ Ruby 3.3 ve Bundler kur
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.3'
+          ruby-version: '3.3.0'
           bundler-cache: true
 
-      - name: Install CocoaPods
-        run: gem install cocoapods --no-document
+      # Ruby versiyonunu doğrula
+      - name: Verify Ruby version
+        run: ruby -v
 
+      # 3️⃣ Node.js kur (React Native için)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.5'
+          cache: 'npm'
+
+      # Node versiyonunu doğrula
+      - name: Verify Node version
+        run: node -v
+
+      # 4️⃣ Proje bağımlılıklarını yükle (npm ile)
+      - name: Install NPM Dependencies
+        run: npm install --legacy-peer-deps
+
+      # 5️⃣ iOS Pod'larını yükle
       - name: Install iOS Pods
         run: |
           cd ios
-          echo "🧹 Cleaning Pod cache..."
-          pod cache clean --all || true
+          pod install
 
-          echo "🔄 Updating Pod Repo..."
-          pod repo update --silent || true
+      # 6️⃣ P8 API Key dosyasını oluştur
+      - name: Create P8 Key File
+        run: echo "${{ secrets.P8_KEY_FILE_CONTENT }}" > AuthKey.p8
 
-          echo "📦 Installing Pods..."
-          pod install --verbose
+      # 7️⃣ Fastlane ile App Store'a deploy
+      - name: Upload to App Store via Fastlane
+        run: bundle exec fastlane deploy_appstore
+        env:
+          API_KEY_PATH: ${{ github.workspace }}/AuthKey.p8
+          APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER_ID }}
+          FASTLANE_ITC_TEAM_ID: "${{ secrets.FASTLANE_ITC_TEAM_ID }}"
+          FASTLANE_TEAM_ID: "${{ secrets.FASTLANE_TEAM_ID }}"
+          FASTLANE_APPLE_ID: "${{ secrets.FASTLANE_APPLE_ID }}"
+          FASTLANE_PASSWORD: "${{ secrets.FASTLANE_PASSWORD }}"
+          MAPS_API_KEY: "${{ secrets.MAPS_API_KEY }}"
 
-      - name: Build iOS
-        run: |
-          cd ios
-          xcodebuild -workspace MapApp.xcworkspace \
-            -scheme MapApp \
-            -configuration Release \
-            -sdk iphoneos \
-            clean build CODE_SIGNING_ALLOWED=NO
+      # 8️⃣ Temizlik adımı
+      - name: Post-Job Cleanup
+        if: always()
+        run: rm -f AuthKey.p8
