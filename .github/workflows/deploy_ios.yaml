@@ -23,8 +23,10 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2' 
-          # Ruby sürümünün eski önbellekten çekilmesini engellemek için bundler-cache: false olarak kaldı.
+          # Ruby sürümünün eski önbellekten çekilmesini engellemek için bundler-cache: false
+          # Ayrıca, Gemfile'ı belirterek sistemin 3.0.7'ye kilitlenmesini engelliyoruz.
           bundler-cache: false
+          gemfile: Gemfile 
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -70,6 +72,5 @@ jobs:
       # --- TEMİZLİK HATASI ÇÖZÜMÜ ---
       - name: Post-Job Cleanup
         if: always()
-        # 'rm -f' kullanılarak, AuthKey.p8 dosyası Fastlane hatası nedeniyle oluşturulmamış olsa bile
-        # komutun hata vermesi engellenir.
+        # 'rm -f' kullanılarak, dosya oluşturulmamış olsa bile komutun hata vermesi engellenir.
         run: rm -f AuthKey.p8
