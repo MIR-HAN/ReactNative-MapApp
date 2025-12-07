@@ -1,83 +1,73 @@
-# File: .github/workflows/deploy_ios.yml
-
-name: iOS App Store Deployment (React Native) 
+name: iOS App Store Deployment (React Native)
 
 on:
   push:
-    # Prevent double triggering by only running on tag pushes
-    branches: [] 
+    branches: []
     tags:
-      - 'v*.*.*' 
-  workflow_dispatch: # Enable manual triggering from the GitHub interface
+      - 'v*.*.*'
+  workflow_dispatch:
 
 jobs:
   deploy:
-    runs-on: macos-latest 
-    environment: production 
+    runs-on: macos-latest
+    environment: production
 
     steps:
+      # 1️⃣ Kodları checkout et
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # --- MANUEL RUBY KURULUMU (KESİN ÇÖZÜM) ---
-      # setup-ruby aksiyonu kaldırıldı. Bu, 3.0.7 kilitlenmesini çözen hiledir.
-      - name: Force Ruby 3.3.x via PATH (Bypass 3.0.7 Lock)
-        run: |
-          # 3.2 PATH'ini zorla; Runner sistemi otomatik olarak 3.3.x'i bulup kullanacaktır.
-          RUBY_VERSION="3.2"
-          echo "/opt/hostedtoolcache/Ruby/${RUBY_VERSION}/x64/bin" >> $GITHUB_PATH
-          ruby -v
+      # 2️⃣ Ruby 3.3 kur ve bundler cache aktif et
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
 
-      - name: Install Ruby Dependencies (Bundler)
+      # 3️⃣ Ruby bağımlılıklarını yükle
+      - name: Install Ruby Dependencies
         run: |
-          # 1. Gemfile.lock dosyasını sil (Kalıntı kilitleri ve eski versiyon bilgilerini temizler)
-          rm -f Gemfile.lock
-          # 2. Bundler'ın yeni versiyonuna uygun olarak "deployment false" ayarını kullanıyoruz.
-          bundle config set --local deployment false
-          # 3. Path ayarını yap
-          bundle config set --local path 'vendor/bundle'
-          # 4. Yeni ayarlarla bundle install çalıştır (Sıfırdan kilit dosyası oluşturulur)
+          rm -f Gemfile.lock       # eski lock dosyasını temizle
           bundle install --jobs 3
-          
+
+      # 4️⃣ Node.js kur
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.19.5' 
+          node-version: '20'
 
-      - name: Install Dependencies (npm/yarn)
-        run: npm install --legacy-peer-deps 
+      # 5️⃣ JS bağımlılıklarını yükle
+      - name: Install JS Dependencies
+        run: npm install --legacy-peer-deps
 
-      # CocoaPods Önbelleği (Geri gelmesi muhtemel boost/checksum hatasına karşı koruma)
+      # 6️⃣ CocoaPods önbelleğini temizle ve pod reposunu güncelle
       - name: Clean CocoaPods Cache and Repos
         run: |
           pod cache clean --all
           pod repo update
-        
+
+      # 7️⃣ iOS podlarını yükle
       - name: Install iOS Pods
         run: cd ios && pod install
-        
-      # Writes the P8 API Key content to a temporary file for security
+
+      # 8️⃣ P8 key dosyasını oluştur
       - name: Create P8 Key File
-        run: |
-          echo "${{ secrets.P8_KEY_FILE_CONTENT }}" > AuthKey.p8
-          
-      # Upload to App Store using Fastlane
+        run: echo "${{ secrets.P8_KEY_FILE_CONTENT }}" > AuthKey.p8
+
+      # 9️⃣ App Store’a Fastlane ile yükle
       - name: Upload to App Store via Fastlane
         run: bundle exec fastlane deploy_appstore
         env:
-          # --- Apple API and Fastlane Variables (Authentication) ---
           API_KEY_PATH: ${{ github.workspace }}/AuthKey.p8
           APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER_ID }}
-          FASTLANE_ITC_TEAM_ID: "${{ secrets.FASTLANE_ITC_TEAM_ID }}" 
+          FASTLANE_ITC_TEAM_ID: "${{ secrets.FASTLANE_ITC_TEAM_ID }}"
           FASTLANE_TEAM_ID: "${{ secrets.FASTLANE_TEAM_ID }}"
           FASTLANE_APPLE_ID: "${{ secrets.FASTLANE_APPLE_ID }}"
           FASTLANE_PASSWORD: "${{ secrets.FASTLANE_PASSWORD }}"
-          
-          # --- In-App API Key (Google Maps) ---
           MAPS_API_KEY: "${{ secrets.MAPS_API_KEY }}"
-          
-      # --- CLEANUP FIX ---
-      - name: Post-Job Cleanup
+
+      # 🔟 Temizlik
+      - name: Cleanup
         if: always()
         run: rm -f AuthKey.p8
