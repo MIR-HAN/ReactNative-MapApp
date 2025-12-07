@@ -30,11 +30,13 @@ jobs:
 
       - name: Install Ruby Dependencies (Bundler)
         run: |
-          # 1. Bundler'ın yeni versiyonuna uygun olarak "deployment false" ayarını kullanıyoruz.
+          # 1. Gemfile.lock dosyasını silerek yeni bir çözümlemeye zorla (Kalıntı kilitleri temizler)
+          rm -f Gemfile.lock
+          # 2. Bundler'ın yeni versiyonuna uygun olarak "deployment false" ayarını kullanıyoruz.
           bundle config set --local deployment false
-          # 2. Path ayarını yap
+          # 3. Path ayarını yap
           bundle config set --local path 'vendor/bundle'
-          # 3. Yeni ayarlarla bundle install çalıştır
+          # 4. Yeni ayarlarla bundle install çalıştır
           bundle install --jobs 3
           
       - name: Setup Node.js
@@ -45,7 +47,7 @@ jobs:
       - name: Install Dependencies (npm/yarn)
         run: npm install --legacy-peer-deps 
 
-      # CocoaPods Önbelleği (Geri gelmesi muhtemel boost hatasına karşı)
+      # CocoaPods Önbelleği (Eski boost/checksum hatasına karşı koruma)
       - name: Clean CocoaPods Cache and Repos
         run: |
           pod cache clean --all
