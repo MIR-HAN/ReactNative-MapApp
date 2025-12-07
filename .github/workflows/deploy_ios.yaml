@@ -4,11 +4,11 @@ name: iOS App Store Deployment (React Native)
 
 on:
   push:
-    # Çift tetiklemeyi önlemek için eklenmişti
+    # Prevent double triggering by only running on tag pushes
     branches: [] 
     tags:
       - 'v*.*.*' 
-  workflow_dispatch: 
+  workflow_dispatch: # Enable manual triggering from the GitHub interface
 
 jobs:
   deploy:
@@ -19,15 +19,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # --- RUBY KURULUMU (İlk başarılı çözümdeki ayarlar) ---
-      - name: Setup Ruby
+      # --- RUBY KURULUMU: 3.3 SÜRÜMÜNÜ ZORLA (3.0.7 Kilidini Aşmak İçin) ---
+      - name: Setup Ruby (Force 3.3 to bypass 3.0.7 lock)
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.2' 
-          # Bu, 3.0.7 kilitlenmesini ilk aşmaya çalıştığımız ayardı
-          bundler-cache: false 
-          # Gemfile yolu ilk başta yoktu ama sonradan ekledik. Bu versiyonda sade tutuyorum.
-
+          ruby-version: '3.3' # Başarılı olduğu görülen sürüm ailesini hedefliyoruz.
+          bundler-cache: false # Önbelleği kesinlikle devre dışı bırak.
+          
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -37,7 +35,7 @@ jobs:
       - name: Install Dependencies (npm/yarn)
         run: npm install --legacy-peer-deps 
 
-      # Bu adım boost hatasını çözmek için eklenmişti. Ruby hatasının geri gelmesiyle silinmesi gerekebilir.
+      # CocoaPods Önbelleği (Ruby hatası çözüldüğünde boost hatası için bu adım gerekir)
       - name: Clean CocoaPods Cache and Repos
         run: |
           pod cache clean --all
