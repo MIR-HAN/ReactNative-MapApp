@@ -30,9 +30,11 @@ jobs:
 
       - name: Install Ruby Dependencies (Bundler)
         run: |
-          # Bundler'ın yeni versiyonuna uygun olarak "deployment false" ayarını kullanıyoruz.
+          # 1. Bundler'ın yeni versiyonuna uygun olarak "deployment false" ayarını kullanıyoruz.
           bundle config set --local deployment false
+          # 2. Path ayarını yap
           bundle config set --local path 'vendor/bundle'
+          # 3. Yeni ayarlarla bundle install çalıştır
           bundle install --jobs 3
           
       - name: Setup Node.js
