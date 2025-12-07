@@ -19,13 +19,12 @@ jobs:
         uses: actions/checkout@v4
 
       # Ruby and Node.js Setup (for Fastlane and React Native)
-     - name: Setup Ruby
+      - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          # Gemfile.lock'taki sürüme uyumlu olması için 3.2 yapıyoruz.
           ruby-version: '3.2' 
-          # bundler-cache: true ile Gemfile.lock'a uyacak.
-          bundler-cache: true
+          # Önbelleği DEVRE DIŞI BIRAKIYORUZ
+          bundler-cache: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
