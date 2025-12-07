@@ -7,9 +7,6 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 
 prepare_react_native_project!
 
-linkage = ENV['USE_FRAMEWORKS']
-use_frameworks! :linkage => linkage.to_sym if linkage
-
 target 'MapApp' do
   use_native_modules!
 
@@ -25,7 +22,7 @@ target 'MapApp' do
   rn_maps_path = '../node_modules/react-native-maps'
   pod 'react-native-google-maps', :path => rn_maps_path
 
-  # Boost: sadece patched podspec kullan
+  # Patched boost podspec kullanılıyor, eski kaynak kaldırıldı
   pod 'boost', :podspec => './ios/boost-patched/boost.podspec'
 
   pod 'RCT-Folly', :podspec => '../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec'
@@ -41,20 +38,9 @@ post_install do |installer|
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.4'
-
-      # C++ standard
       config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
       config.build_settings['CXX_STANDARD'] = '17'
       config.build_settings['CLANG_CXX_LIBRARY'] = 'libc++'
-    end
-  end
-
-  # Google Maps macro
-  installer.pods_project.targets.each do |target|
-    if target.name == 'react-native-maps'
-      target.build_configurations.each do |config|
-        config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)', 'HAVE_GOOGLE_MAPS=1']
-      end
     end
   end
 end
