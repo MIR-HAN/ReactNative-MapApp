@@ -23,7 +23,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2' 
-          # Önbelleği DEVRE DIŞI BIRAKIYORUZ
+          # Ruby sürümünün eski önbellekten çekilmesini engellemek için bundler-cache: false olarak kaldı.
           bundler-cache: false
 
       - name: Setup Node.js
@@ -37,6 +37,12 @@ jobs:
         # We include the flag to resolve peer dependency issues
         run: npm install --legacy-peer-deps 
 
+      # --- BOOST HATASI ÇÖZÜMÜ: Pod Önbelleğini Temizleme ---
+      - name: Clean CocoaPods Cache and Repos
+        run: |
+          pod cache clean --all
+          pod repo update
+        
       - name: Install iOS Pods
         run: cd ios && pod install
         
@@ -61,6 +67,9 @@ jobs:
           # --- In-App API Key (Google Maps) ---
           MAPS_API_KEY: "${{ secrets.MAPS_API_KEY }}"
           
+      # --- TEMİZLİK HATASI ÇÖZÜMÜ ---
       - name: Post-Job Cleanup
         if: always()
-        run: rm AuthKey.p8 # Deletes the key for security reasons
+        # 'rm -f' kullanılarak, AuthKey.p8 dosyası Fastlane hatası nedeniyle oluşturulmamış olsa bile
+        # komutun hata vermesi engellenir.
+        run: rm -f AuthKey.p8
