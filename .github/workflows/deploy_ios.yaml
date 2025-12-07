@@ -1,63 +1,63 @@
 # File: .github/workflows/deploy_ios.yml
 
-name: iOS App Store Deployment (React Native) # Workflow name
+name: iOS App Store Dağıtımı (React Native) # İş Akışı Adı
 
 on:
   push:
-    # This workflow runs only when tags in the v*.*.* format are pushed to the main branch
+    # 1. Çift tetiklemeyi önlemek için sadece etiket (tag) gönderme olaylarında çalışır.
+    branches: [] 
     tags:
       - 'v*.*.*' 
-  workflow_dispatch: # Enables manual triggering from the GitHub interface
+  workflow_dispatch: # GitHub arayüzünden manuel başlatmayı etkinleştirir
 
 jobs:
   deploy:
-    runs-on: macos-latest # Environment providing the latest Xcode/SDK for Apple build
+    runs-on: macos-latest # Apple derlemesi için en son Xcode/SDK içeren ortam
     environment: production 
 
     steps:
-      - name: Checkout code
+      - name: Kodu Çek
         uses: actions/checkout@v4
 
-      # Ruby and Node.js Setup (for Fastlane and React Native)
-      - name: Setup Ruby
+      # --- KURULUM ADIMLARI ---
+
+      # 2. Ruby 3.2 sürümüne kilitlenmeye zorlamak için önbelleği (cache) devre dışı bırakıyoruz 
+      # ve Gemfile yolunu açıkça belirtiyoruz.
+      - name: Ruby Kurulumu
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2' 
-          # Ruby sürümünün eski önbellekten çekilmesini engellemek için bundler-cache: false
-          # Ayrıca, Gemfile'ı belirterek sistemin 3.0.7'ye kilitlenmesini engelliyoruz.
           bundler-cache: false
-          gemfile: Gemfile 
+          gemfile: Gemfile # Kök dizindeki Gemfile'ı kullanmaya zorla
 
-      - name: Setup Node.js
+      - name: Node.js Kurulumu
         uses: actions/setup-node@v4
         with:
-          # Targeting your specific Node version
           node-version: '20.19.5' 
 
-      # Install Project Dependencies
-      - name: Install Dependencies (npm/yarn)
-        # We include the flag to resolve peer dependency issues
+      - name: Bağımlılıkları Kur (npm)
+        # Peer dependency sorunlarını çözmek için flag kullanıyoruz
         run: npm install --legacy-peer-deps 
 
-      # --- BOOST HATASI ÇÖZÜMÜ: Pod Önbelleğini Temizleme ---
-      - name: Clean CocoaPods Cache and Repos
+      # 3. 'boost' pod checksum hatasını çözmek için Pods yüklemeden önce önbelleği temizliyoruz.
+      - name: CocoaPods Önbelleğini Temizle ve Repo'ları Güncelle
         run: |
           pod cache clean --all
           pod repo update
         
-      - name: Install iOS Pods
+      - name: iOS Pods Kurulumu
         run: cd ios && pod install
         
-      # Writes the P8 API Key content to a temporary file for security
-      - name: Create P8 Key File
+      # --- FASTLANE VE DERLEME ADIMLARI ---
+
+      - name: P8 Anahtar Dosyasını Oluştur
         run: |
           echo "${{ secrets.P8_KEY_FILE_CONTENT }}" > AuthKey.p8
           
-      # Upload to App Store using Fastlane
-      - name: Upload to App Store via Fastlane
+      - name: Fastlane ile App Store'a Yükle
         run: bundle exec fastlane deploy_appstore
         env:
-          # --- Apple API and Fastlane Variables (Authentication) ---
+          # --- Apple API ve Fastlane Değişkenleri ---
           API_KEY_PATH: ${{ github.workspace }}/AuthKey.p8
           APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER_ID }}
@@ -66,11 +66,10 @@ jobs:
           FASTLANE_APPLE_ID: "${{ secrets.FASTLANE_APPLE_ID }}"
           FASTLANE_PASSWORD: "${{ secrets.FASTLANE_PASSWORD }}"
           
-          # --- In-App API Key (Google Maps) ---
+          # --- Uygulama İçi API Anahtarı ---
           MAPS_API_KEY: "${{ secrets.MAPS_API_KEY }}"
           
-      # --- TEMİZLİK HATASI ÇÖZÜMÜ ---
-      - name: Post-Job Cleanup
+      # 4. Temizlik hatasını önlemek için (if: always) koşulu ve (-f) flag'i kullanılıyor.
+      - name: İş Sonrası Temizlik
         if: always()
-        # 'rm -f' kullanılarak, dosya oluşturulmamış olsa bile komutun hata vermesi engellenir.
         run: rm -f AuthKey.p8
