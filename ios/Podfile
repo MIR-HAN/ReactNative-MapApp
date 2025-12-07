@@ -25,9 +25,8 @@ target 'MapApp' do
   rn_maps_path = '../node_modules/react-native-maps'
   pod 'react-native-google-maps', :path => rn_maps_path
 
-  # Hata veren podspec tanımını kaldırıp, checksum hatasını çözmek için
-  # boost'u çalışan harici bir kaynaktan çekmeye zorluyoruz.
-  pod 'boost', git: 'https://github.com/react-native-community/boost-ios-fbs', tag: '1.76.0.1' 
+  # Orijinal boost podspec tanımı geri getirildi
+  pod 'boost', :podspec => '../node_modules/react-native/third-party-podspecs/boost.podspec'
  
   pod 'RCT-Folly', :podspec => '../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec' 
 
