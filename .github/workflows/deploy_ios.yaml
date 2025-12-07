@@ -19,9 +19,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # --- MANUEL RUBY KURULUMU (setup-ruby aksiyonu kaldırıldı) ---
-      # Bu, başarılı olduğumuz senaryoyu kopyalar ve 3.0.7 kilitlenmesini kesin olarak aşar.
-      - name: Force Ruby 3.3.x via PATH (Final Fix)
+      # --- MANUEL RUBY KURULUMU (3.0.7 Kilidini Aşmak İçin) ---
+      - name: Force Ruby 3.3.x via PATH (Success Confirmed)
         run: |
           # 3.2 PATH'ini zorla, sistem otomatik olarak 3.3.x'i bulacaktır
           RUBY_VERSION="3.2"
@@ -29,10 +28,11 @@ jobs:
           ruby -v
 
       - name: Install Ruby Dependencies (Bundler)
-        # --no-deployment: Gemfile.lock'taki eski sürüm kilitlenmesini görmezden gelmeye zorla
         run: |
+          # Yeni Bundler komutu: --no-deployment yerine "config set deployment false" kullanıyoruz
+          bundle config set --local deployment false
           bundle config set --local path 'vendor/bundle'
-          bundle install --jobs 3 --no-deployment
+          bundle install --jobs 3
           
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -42,7 +42,7 @@ jobs:
       - name: Install Dependencies (npm/yarn)
         run: npm install --legacy-peer-deps 
 
-      # CocoaPods Önbelleği (Eski boost hatası geri gelirse bu adım gerekir)
+      # CocoaPods Önbelleği (Geri gelmesi muhtemel boost hatasına karşı)
       - name: Clean CocoaPods Cache and Repos
         run: |
           pod cache clean --all
