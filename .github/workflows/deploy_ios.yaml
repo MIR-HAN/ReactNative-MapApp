@@ -22,7 +22,7 @@ jobs:
      - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          # Required gem'in ihtiyacını karşılamak için 3.3 sürümüne yükseltiyoruz.
+          # BURASI '3.3' OLMALI
           ruby-version: '3.3' 
           bundler-cache: true
 
