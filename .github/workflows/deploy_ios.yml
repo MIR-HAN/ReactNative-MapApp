@@ -26,44 +26,53 @@ jobs:
       - name: Verify Ruby version
         run: ruby -v
 
-      # 3️⃣ Node.js kur (React Native için) ve cache devre dışı
+      # 3️⃣ Node.js kur
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20.19.5'
-          
+          cache: 'npm'
+
       - name: Verify Node version
         run: node -v
 
-      # 4️⃣ Proje bağımlılıklarını yükle (temiz kurulum)
+      # 4️⃣ NPM bağımlılıklarını yükle
       - name: Install NPM Dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm install --legacy-peer-deps
 
-      # 5️⃣ Temizleme: Pod cache, Podfile.lock ve trunk repo
+      # 5️⃣ iOS Pods ve cache temizle
       - name: Clean iOS Pods and Cache
         run: |
           cd ios
           pod cache clean --all
-          rm -rf ~/Library/Caches/CocoaPods
           rm -rf Pods Podfile.lock
-          pod repo remove trunk || true
-          pod setup
 
-      # 6️⃣ iOS Pod'larını yükle (patched boost podspec ile)
+      # 6️⃣ Pre-install patch: Boost URL ve SHA
+      - name: Patch Boost Podspec
+        run: |
+          cd ios
+          boost_podspec="../node_modules/react-native/third-party-podspecs/boost.podspec"
+          if [ -f "$boost_podspec" ]; then
+            sed -i '' 's|https://downloads.sourceforge.net/project/boost/boost/1.76.0/boost_1_76_0.tar.bz2|https://archives.boost.io/release/1.76.0/source/boost_1_76_0.tar.bz2|g' "$boost_podspec"
+            sed -i '' 's|f0397ba6e982c4450f27bf32a2a83292aba035b827a5623a14636ea583318c41|1c162b579a423fa6876c6c5bc16d39ab4bc05e28898977a0a6af345f523f6357|g' "$boost_podspec"
+            echo "🔧 Boost podspec patched with correct URL and SHA"
+          fi
+
+      # 7️⃣ Pod'ları yükle
       - name: Install iOS Pods
         run: |
           cd ios
           pod install --repo-update
 
-      # 7️⃣ P8 API Key dosyasını oluştur
+      # 8️⃣ P8 Key dosyasını oluştur
       - name: Create P8 Key File
         run: echo "${{ secrets.P8_KEY_FILE_CONTENT }}" > AuthKey.p8
 
-      # 8️⃣ Fastlane ile App Store'a deploy
+      # 9️⃣ Fastlane ile App Store'a deploy
       - name: Upload to App Store via Fastlane
         run: bundle exec fastlane deploy_appstore
         env:
-          API_KEY_PATH: ${{ github.workspace }}/AuthKey.p8
+          API_KEY_PATH: ${{ github.workspace }}/ios/AuthKey.p8
           APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER_ID }}
           FASTLANE_ITC_TEAM_ID: "${{ secrets.FASTLANE_ITC_TEAM_ID }}"
@@ -72,7 +81,7 @@ jobs:
           FASTLANE_PASSWORD: "${{ secrets.FASTLANE_PASSWORD }}"
           MAPS_API_KEY: "${{ secrets.MAPS_API_KEY }}"
 
-      # 9️⃣ Temizlik adımı
+      # 🔟 Temizlik
       - name: Post-Job Cleanup
         if: always()
-        run: rm -f AuthKey.p8
+        run: rm -f ios/AuthKey.p8
