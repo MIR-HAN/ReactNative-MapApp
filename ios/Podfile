@@ -8,7 +8,7 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 prepare_react_native_project!
 
 # -------------------------------------------------------------------
-# BOOST SOURCEFIX: SourceForge → Boost Resmi Archive
+# BOOST SOURCEFIX: SourceForge → Boost  Archive
 # -------------------------------------------------------------------
 pre_install do |installer|
   boost_podspec = File.join(__dir__, "../node_modules/react-native/third-party-podspecs/boost.podspec")
