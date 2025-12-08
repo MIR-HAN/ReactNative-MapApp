@@ -41,14 +41,12 @@ jobs:
         run: npm install --legacy-peer-deps
 
       # 5️⃣ Temizleme: Pod cache ve Podfile.lock
-      # Bu adım root dizininde çalışır.
       - name: Clean iOS Pods and Cache
         run: |
           rm -rf ios/Pods ios/Podfile.lock
           pod cache clean --all
           
-      # 🛠️ KRİTİK ADIM: boost.podspec'i SHA'yı garanti eden URL ile yamala
-      # Bu yama, SHA uyuşmazlığını ve arşiv formatı hatasını çözer.
+      # 🛠️ KRİTİK YAMA ADIMI: boost.podspec'i SHA'yı garanti eden URL ile yamala
       - name: Patch boost.podspec for Stable Download
         run: |
           # YML, root dizininde çalıştığı için yola dikkat edin.
@@ -60,8 +58,7 @@ jobs:
             # 1. URL Düzeltmesi (Varsayılan SourceForge -> Archives.boost.io)
             sed -i '' 's|https://downloads.sourceforge.net/project/boost/boost/1.76.0/boost_1_76_0.tar.bz2|https://archives.boost.io/release/1.76.0/source/boost_1_76_0.tar.bz2|g' "$BOOST_PODSPEC_PATH"
             
-            # 2. Checksum Düzeltmesi (Beklenen SHA'yı CI'ın aldığı SHA'ya ayarlıyoruz)
-            # Podspec'teki 'f0397...' değerini CI'ın indirdiği ve muhtemelen doğru olan '1c162...' değeriyle değiştiriyoruz.
+            # 2. Checksum Düzeltmesi (Beklenen SHA: f0397... yerine -> 1c162...)
             sed -i '' 's|f0397ba6e982c4450f27bf32a2a83292aba035b827a5623a14636ea583318c41|1c162b579a423fa6876c6c5bc16d39ab4bc05e28898977a0a6af345f523f6357|g' "$BOOST_PODSPEC_PATH"
             
             echo "✅ boost.podspec yaması tamamlandı."
@@ -76,8 +73,16 @@ jobs:
             exit 1
           fi
 
+      # 🛑 YENİ KRİTİK TEMİZLİK ADIMI: CI Cache'ini zorla temizleme
+      - name: Force Clean Cocoapods and Repos
+        run: |
+          echo "Force cleaning CocoaPods system cache and updating repos..."
+          # Kullanıcı dizinindeki önbelleği siler (En inatçı sorunları çözer)
+          rm -rf ~/Library/Caches/CocoaPods 
+          # Spec repolarını günceller
+          pod repo update 
+          
       # 6️⃣ iOS Pod'larını yükle
-      # Bu adımda ios dizinine geçiş yapılıyor.
       - name: Install iOS Pods
         run: |
           cd ios
