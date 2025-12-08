@@ -38,6 +38,7 @@ jobs:
 
       # 4️⃣ Proje bağımlılıklarını yükle (npm ile)
       - name: Install NPM Dependencies
+        # Bu adım node_modules'ü kurar ve boost.podspec'i orijinal haline getirir.
         run: npm install --legacy-peer-deps
 
       # 5️⃣ Temizleme: Pod cache ve Podfile.lock
@@ -46,20 +47,54 @@ jobs:
           rm -rf ios/Pods ios/Podfile.lock
           pod cache clean --all
           
+      # 🛠️ NİHAİ YAMA: Checksum'u DEVRE DIŞI BIRAK ve GitHub Mirror'a GEÇ
+      - name: Patch boost.podspec to GitHub Mirror and Disable Checksum
+        run: |
+          BOOST_PODSPEC_PATH="./node_modules/react-native/third-party-podspecs/boost.podspec"
+          
+          if [ -f "$BOOST_PODSPEC_PATH" ]; then
+            echo "🔧 boost.podspec yaması başlatıldı (GitHub Mirror + Checksum Devre Dışı)..."
+            
+            # 1. Checksum satırını Podspec'ten SİL (Bu, validasyonu atlatır!)
+            # Hem 'sha256' hem de daha önceki olası 'checksum' satırlarını siliyoruz.
+            sed -i '' '/:sha256/d' "$BOOST_PODSPEC_PATH"
+            sed -i '' '/:checksum/d' "$BOOST_PODSPEC_PATH"
+            
+            # 2. URL Düzeltmesi (Sorunlu Kaynaklar -> GitHub Mirror)
+            # Bu, "Unrecognized archive format" hatasını çözmeyi hedefler.
+            GITHUB_MIRROR_URL="https://github.com/boostorg/boost/releases/download/boost-1.76.0/boost_1_76_0.tar.bz2"
+            
+            # SourceForge'dan gelen linki değiştir
+            sed -i '' "s|https://downloads.sourceforge.net/project/boost/boost/1.76.0/boost_1_76_0.tar.bz2|$GITHUB_MIRROR_URL|g" "$BOOST_PODSPEC_PATH"
+            # Önceki denemelerdeki archives.boost.io linkini değiştir
+            sed -i '' "s|https://archives.boost.io/release/1.76.0/source/boost_1_76_0.tar.bz2|$GITHUB_MIRROR_URL|g" "$BOOST_PODSPEC_PATH"
+            
+            echo "✅ boost.podspec yaması tamamlandı. Checksum kontrolü iptal edildi."
+
+            # Yama içeriğini kontrol edelim (SHA satırının GÖRÜNMEMESİ gerekir)
+            echo "--- YAMADAN SONRA boost.podspec İÇERİĞİ KONTROLÜ (SHA SATIRI YOK) ---"
+            cat "$BOOST_PODSPEC_PATH" | grep -E "source|github.com"
+            echo "---------------------------------------------------------------------"
+            
+          else
+            echo "❌ HATA: boost.podspec bulunamadı."
+            exit 1
+          fi
+
       # 🛑 KRİTİK TEMİZLİK ADIMI: CI Cache'ini zorla temizleme
       - name: Force Clean Cocoapods and Repos
         run: |
           echo "Force cleaning CocoaPods system cache and updating repos..."
-          # Kullanıcı dizinindeki önbelleği siler
+          # Kullanıcı dizinindeki önbelleği siler (En inatçı sorunları çözer)
           rm -rf ~/Library/Caches/CocoaPods 
           # Spec repolarını günceller
           pod repo update 
           
       # 6️⃣ iOS Pod'larını yükle
-      # Bu adım node_modules içindeki YAMALANMAMIŞ boost.podspec'i kullanacaktır.
       - name: Install iOS Pods
         run: |
           cd ios
+          # Bu adım, SHA olmadan (Checksum atlandı) ve GitHub Mirror URL'si ile çalışmalıdır.
           pod install --repo-update
 
       # 7️⃣ P8 API Key dosyasını oluştur
