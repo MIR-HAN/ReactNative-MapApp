@@ -46,8 +46,32 @@ jobs:
           cd ios
           pod cache clean --all
           rm -rf Pods Podfile.lock
+          # Yama adımını root dizinde çalıştırmak için geri çıkıyoruz
+          cd ..
+      
+      # 🛠️ YENİ KRİTİK ADIM: boost.podspec'i Yaml içinde direkt patch et
+      # boost.podspec'in indirme URL'sini ve beklenen checksum (SHA) değerini günceller.
+      - name: Patch boost.podspec for CI
+        run: |
+          BOOST_PODSPEC_PATH="./node_modules/react-native/third-party-podspecs/boost.podspec"
+          
+          if [ -f "$BOOST_PODSPEC_PATH" ]; then
+            echo "🔧 boost.podspec dosyası yamalanıyor..."
+            # 1. URL Düzeltmesi (SourceForge -> Boost Archive)
+            # macOS'ta sed ile dosya içi düzenleme için -i '' kullanılır.
+            sed -i '' 's|https://downloads.sourceforge.net/project/boost/boost/1.76.0/boost_1_76_0.tar.bz2|https://archives.boost.io/release/1.76.0/source/boost_1_76_0.tar.bz2|g' "$BOOST_PODSPEC_PATH"
+            
+            # 2. Checksum Düzeltmesi (Eski SHA -> Yeni SHA)
+            # f0397ba6... SHA değerini 1c162b57... yeni SHA değeri ile değiştiriyoruz.
+            sed -i '' 's|f0397ba6e982c4450f27bf32a2a83292aba035b827a5623a14636ea583318c41|1c162b579a423fa6876c6c5bc16d39ab4bc05e28898977a0a6af345f523f6357|g' "$BOOST_PODSPEC_PATH"
+            
+            echo "✅ boost.podspec başarıyla yamalandı."
+          else
+            echo "❌ HATA: boost.podspec bulunamadı."
+            exit 1
+          fi
 
-      # 6️⃣ iOS Pod'larını yükle
+      # 6️⃣ iOS Pod'larını yükle (Şimdi yamanmış dosyayı kullanacak)
       - name: Install iOS Pods
         run: |
           cd ios

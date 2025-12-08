@@ -9,6 +9,8 @@ prepare_react_native_project!
 
 # -------------------------------------------------------------------
 # BOOST SOURCEFIX: SourceForge → Boost  Archive
+# NOT: Bu blok, CI/CD ortamında zamanlama sorunlarına yol açabilir. 
+# GitHub Actions .yml dosyasında sed komutuyla yapmak daha güvenlidir.
 # -------------------------------------------------------------------
 pre_install do |installer|
   boost_podspec = File.join(__dir__, "../node_modules/react-native/third-party-podspecs/boost.podspec")
