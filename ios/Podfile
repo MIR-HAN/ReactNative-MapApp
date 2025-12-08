@@ -16,16 +16,22 @@ pre_install do |installer|
   if File.exist?(boost_podspec)
     contents = File.read(boost_podspec)
 
-    # SourceForge’i resmi archive ile değiştir
     contents.gsub!(
       "https://downloads.sourceforge.net/project/boost/boost/1.76.0/boost_1_76_0.tar.bz2",
       "https://archives.boost.io/release/1.76.0/source/boost_1_76_0.tar.bz2"
     )
 
+    # CI SHA
+    contents.gsub!(
+      "f0397ba6e982c4450f27bf32a2a83292aba035b827a5623a14636ea583318c41",
+      "1c162b579a423fa6876c6c5bc16d39ab4bc05e28898977a0a6af345f523f6357"
+    )
+
     File.write(boost_podspec, contents)
-    puts "🔧 Patched boost.podspec → Boost URL artık archives.boost.io"
+    puts "🔧 Patched boost.podspec → URL ve SHA güncellendi"
   end
 end
+
 # -------------------------------------------------------------------
 
 target 'MapApp' do
