@@ -26,32 +26,34 @@ jobs:
       - name: Verify Ruby version
         run: ruby -v
 
-      # 3️⃣ Node.js kur (React Native için)
+      # 3️⃣ Node.js kur (React Native için) ve cache devre dışı
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20.19.5'
-          cache: 'npm'
+          cache: false
 
       - name: Verify Node version
         run: node -v
 
-      # 4️⃣ Proje bağımlılıklarını yükle (npm ile)
+      # 4️⃣ Proje bağımlılıklarını yükle (temiz kurulum)
       - name: Install NPM Dependencies
-        run: npm install --legacy-peer-deps
+        run: npm ci --legacy-peer-deps
 
-      # 5️⃣ Temizleme: Pod cache ve Podfile.lock
+      # 5️⃣ Temizleme: Pod cache, Podfile.lock ve trunk repo
       - name: Clean iOS Pods and Cache
         run: |
           cd ios
           pod cache clean --all
           rm -rf Pods Podfile.lock
+          pod repo remove trunk || true
+          pod setup
 
       # 6️⃣ iOS Pod'larını yükle (patched boost podspec ile)
       - name: Install iOS Pods
         run: |
           cd ios
-          pod install
+          pod install --repo-update
 
       # 7️⃣ P8 API Key dosyasını oluştur
       - name: Create P8 Key File
