@@ -14,16 +14,22 @@ pre_install do |installer|
   boost_podspec = File.join(__dir__, "../node_modules/react-native/third-party-podspecs/boost.podspec")
 
   if File.exist?(boost_podspec)
+    puts "🔍 Boost podspec FOUND at #{boost_podspec}"
     contents = File.read(boost_podspec)
 
-    # SourceForge’i resmi archive ile değiştir
-    contents.gsub!(
-      "https://downloads.sourceforge.net/project/boost/boost/1.76.0/boost_1_76_0.tar.bz2",
-      "https://archives.boost.io/release/1.76.0/source/boost_1_76_0.tar.bz2"
-    )
-
-    File.write(boost_podspec, contents)
-    puts "🔧 Patched boost.podspec → Boost URL artık archives.boost.io"
+    if contents.include?("downloads.sourceforge.net")
+      puts "🔧 Original URL: downloads.sourceforge.net detected, patching..."
+      contents.gsub!(
+        "https://downloads.sourceforge.net/project/boost/boost/1.76.0/boost_1_76_0.tar.bz2",
+        "https://archives.boost.io/release/1.76.0/source/boost_1_76_0.tar.bz2"
+      )
+      File.write(boost_podspec, contents)
+      puts "✅ Boost podspec patched successfully! URL artık archives.boost.io"
+    else
+      puts "ℹ️ No SourceForge URL found, patch not needed."
+    end
+  else
+    puts "❌ Boost podspec NOT FOUND!"
   end
 end
 # -------------------------------------------------------------------
