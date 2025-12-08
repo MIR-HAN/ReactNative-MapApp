@@ -22,8 +22,8 @@ target 'MapApp' do
   rn_maps_path = '../node_modules/react-native-maps'
   pod 'react-native-google-maps', :path => rn_maps_path
 
-  # Patched boost podspec kullanılıyor, eski kaynak kaldırıldı
-  pod 'boost', :podspec => './ios/boost-patched/boost.podspec'
+  # Boost: normal podspec
+  pod 'boost', :podspec => '../node_modules/react-native/third-party-podspecs/boost.podspec'
 
   pod 'RCT-Folly', :podspec => '../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec'
 
