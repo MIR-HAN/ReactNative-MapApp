@@ -7,6 +7,27 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 
 prepare_react_native_project!
 
+# -------------------------------------------------------------------
+# BOOST SOURCEFIX: SourceForge → Boost Resmi Archive
+# -------------------------------------------------------------------
+pre_install do |installer|
+  boost_podspec = File.join(__dir__, "../node_modules/react-native/third-party-podspecs/boost.podspec")
+
+  if File.exist?(boost_podspec)
+    contents = File.read(boost_podspec)
+
+    # SourceForge’i resmi archive ile değiştir
+    contents.gsub!(
+      "https://downloads.sourceforge.net/project/boost/boost/1.76.0/boost_1_76_0.tar.bz2",
+      "https://archives.boost.io/release/1.76.0/source/boost_1_76_0.tar.bz2"
+    )
+
+    File.write(boost_podspec, contents)
+    puts "🔧 Patched boost.podspec → Boost URL artık archives.boost.io"
+  end
+end
+# -------------------------------------------------------------------
+
 target 'MapApp' do
   use_native_modules!
 
@@ -22,7 +43,7 @@ target 'MapApp' do
   rn_maps_path = '../node_modules/react-native-maps'
   pod 'react-native-google-maps', :path => rn_maps_path
 
-  # Boost: normal podspec
+  # Boost (podspec path)
   pod 'boost', :podspec => '../node_modules/react-native/third-party-podspecs/boost.podspec'
 
   pod 'RCT-Folly', :podspec => '../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec'
