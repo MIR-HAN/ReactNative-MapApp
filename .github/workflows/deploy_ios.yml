@@ -46,44 +46,17 @@ jobs:
           rm -rf ios/Pods ios/Podfile.lock
           pod cache clean --all
           
-    
-      # 🛠️ NİHAİ YAMA 2: Sözdizimi Hatasını Çözen, Tek Hat Üzerinde Çalışan Sed
-      - name: Patch boost.podspec to GitHub Mirror and Disable Checksum (FINAL FIX)
-        run: |
-          BOOST_PODSPEC_PATH="./node_modules/react-native/third-party-podspecs/boost.podspec"
-          GITHUB_MIRROR_URL="https://github.com/boostorg/boost/releases/download/boost-1.76.0/boost_1_76_0.tar.bz2"
-          
-          if [ -f "$BOOST_PODSPEC_PATH" ]; then
-            echo "🔧 boost.podspec yaması başlatıldı (Son Sözdizimi Düzeltmesi)..."
-            
-            # 1. SHA satırını SİL ve URL'yi DEĞİŞTİR (Tek bir satırda daha güvenli ayraçlarla)
-            # Bu, macOS'un sed'indeki boşluk/satır sonu sorunlarını minimize etmeyi amaçlar.
-            sed -i '' -e '/:sha256/d' \
-                       -e '/:checksum/d' \
-                       -e "s|https://downloads.sourceforge.net/project/boost/boost/1.76.0/boost_1_76_0.tar.bz2|$GITHUB_MIRROR_URL|g" \
-                       -e "s|https://archives.boost.io/release/1.76.0/source/boost_1_76_0.tar.bz2|$GITHUB_MIRROR_URL|g" \
-                       "$BOOST_PODSPEC_PATH"
-            
-            echo "✅ boost.podspec yaması tamamlandı. Sözdizimi hatası çözülmüş olmalıdır."
-
-            # Kontrol Adımı (Podspec'in ilk 20 satırını gösterir, böylece hatalı satır sonu olup olmadığını görebiliriz.)
-            echo "--- YAMADAN SONRA boost.podspec İLK 20 SATIR ---"
-            head -n 20 "$BOOST_PODSPEC_PATH"
-            echo "------------------------------------------------"
-            
-          else
-            echo "❌ HATA: boost.podspec bulunamadı."
-            exit 1
-          fi
-
       # 🛑 KRİTİK TEMİZLİK ADIMI: CI Cache'ini zorla temizleme
       - name: Force Clean Cocoapods and Repos
         run: |
           echo "Force cleaning CocoaPods system cache and updating repos..."
+          # Kullanıcı dizinindeki önbelleği siler (En inatçı sorunları çözer)
           rm -rf ~/Library/Caches/CocoaPods 
+          # Spec repolarını günceller
           pod repo update 
           
       # 6️⃣ iOS Pod'larını yükle
+      # Bu adımda, Podfile'daki Ruby yaması çalışacak ve boost.podspec'i düzeltecektir.
       - name: Install iOS Pods
         run: |
           cd ios

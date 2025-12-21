@@ -2,43 +2,47 @@
 #import <GoogleMaps/GoogleMaps.h>
 #import <Firebase.h>
 #import <React/RCTBundleURLProvider.h>
-#import <React/RCTRootView.h>
-#import "RNBootSplash.h"
+#import "RNBootSplash.h" // BootSplash 
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+  // 1. Google Maps API Key (Secrets.plist'ten çekme)
   NSString *path = [[NSBundle mainBundle] pathForResource:@"Secrets" ofType:@"plist"];
   NSDictionary *secrets = [NSDictionary dictionaryWithContentsOfFile:path];
   NSString *apiKey = secrets[@"GMSApiKey"];
   [GMSServices provideAPIKey:apiKey];
   
+  // 2. Firebase Konfigürasyonu
   [FIRApp configure];
 
-  NSURL *jsCodeLocation;
-#if DEBUG
-  jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index"];
-#else
-  jsCodeLocation = [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
-#endif
+  // 3. React Native Modern Init
+  self.moduleName = @"MapApp";
+  // You can add your custom initial props in the dictionary below.
+  // They will be passed down to the ViewController used by React Native.
+  self.initialProps = @{};
 
-  RCTRootView *rootView = [[RCTRootView alloc] initWithBundleURL:jsCodeLocation
-                                                      moduleName:@"MapApp"
-                                               initialProperties:nil
-                                                   launchOptions:launchOptions];
-  rootView.backgroundColor = [UIColor whiteColor];
+  return [super application:application didFinishLaunchingWithOptions:launchOptions];
+}
 
-  self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-  UIViewController *rootViewController = [UIViewController new];
-  rootViewController.view = rootView;
-  self.window.rootViewController = rootViewController;
-  [self.window makeKeyAndVisible];
-
+// 4. BootSplash için gerekli metod (0.76+ için modern yöntem)
+- (void)customizeRootView:(RCTRootView *)rootView {
   [RNBootSplash initWithStoryboard:@"LaunchScreen" rootView:rootView];
+}
 
-  return YES;
+- (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
+{
+  return [self bundleURL];
+}
+
+- (NSURL *)bundleURL
+{
+#if DEBUG
+  return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index"];
+#else
+  return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
+#endif
 }
 
 @end
-

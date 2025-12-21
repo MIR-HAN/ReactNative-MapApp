@@ -149,7 +149,7 @@ const Map = ({ navigation }) => {
             title="Your current location"
             coordinate={
               {
-                latitude: currentPosition?.latitute,
+                latitude: currentPosition?.latitude,
                 longitude: currentPosition?.longitude,
                 latitudeDelta: currentPosition?.latitudeDelta,
                 longitudeDelta: currentPosition?.longitudeDelta
