@@ -22,22 +22,26 @@ target 'MapApp' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-  # --- KRİTİK EKLEME BURADA ---
   # Google Maps köprüsü ve kütüphaneleri
   pod 'react-native-google-maps', :path => '../node_modules/react-native-maps'
   pod 'GoogleMaps'
   pod 'Google-Maps-iOS-Utils'
-  # ---------------------------
 
   post_install do |installer|
     react_native_post_install(installer, config[:reactNativePath])
     
     installer.pods_project.targets.each do |target|
       target.build_configurations.each do |config|
+        # Genel Ayarlar
         config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.1'
         config.build_settings['ENABLE_USER_SCRIPT_SANDBOXING'] = 'NO'
         config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
         
+        # --- dSYM HATASI İÇİN EKLENEN KISIM ---
+        # Bu ayar hermes ve diğer podlar için dSYM üretilmesini sağlar
+        config.build_settings['DEBUG_INFORMATION_FORMAT'] = 'dwarf-with-dsym'
+        # -------------------------------------
+
         config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)']
         
         # react-native-maps ve genel yeni mimariyi kapatma

@@ -16,7 +16,6 @@ const SignUp = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [name, setName] = useState("")
-  const [surname, setSurname] = useState("")
   const [userType, setUserType] = useState("")
   const [loading, setLoading] = useState(false)
 
@@ -75,7 +74,7 @@ const form ={
     }
   
     // ---- OPTIONAL FIELDS ----
-    const safeSurname = surname || "";
+   
     const safeUserType = userType || "";
   
     setLoading(true);
@@ -88,7 +87,6 @@ const form ={
         const form = {
           userId: response.user.uid,
           name: name,
-          surname: safeSurname,      // boşsa ""
           userType: safeUserType,    // boşsa ""
           email: email,
         };
@@ -142,10 +140,6 @@ const form ={
             onChangeText={(value => setName(value))}
             value={name}  inputTitle={"Name"} placeholder="Name" />
 
-          <CustomInput
-            icon={<User color={Colors.BLACK} variant='Bold' />}
-            onChangeText={(value => setSurname(value))}
-            value={surname} optional={true} inputTitle={"Surname"} placeholder="Surname" />
 
           <CustomInput
             icon={<UserTag color={Colors.BLACK} variant='Bold' />}

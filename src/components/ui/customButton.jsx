@@ -4,7 +4,7 @@ import { height } from '../../utils/constansts';
 import { Colors } from '../../theme/colors';
 
 const CustomButton = (props) => {
-  const {loading,title, style}=props
+  const {loading,title, style,textStyle}=props
   return (
     <TouchableOpacity
     disabled={loading}
@@ -18,7 +18,7 @@ const CustomButton = (props) => {
   loading?
   <ActivityIndicator size={"small"} color={Colors.WHITE}/>
   : 
-  <Text style={{fontWeight:"bold",fontSize:20, color:Colors.WHITE}}>{title}</Text>
+  <Text style={[{fontWeight:"bold",fontSize:20, color:Colors.WHITE}, textStyle]}>{title}</Text>
 }
 
      
@@ -29,7 +29,7 @@ const CustomButton = (props) => {
 const styles = StyleSheet.create({
   container: {
     
-   backgroundColor:Colors.GREEN,
+   backgroundColor:Colors.LOGOCOLOR,
     justifyContent: 'center',
     alignItems: 'center',
     height:height*0.06,

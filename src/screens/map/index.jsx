@@ -32,14 +32,14 @@ const Map = ({ navigation }) => {
   
         querySnapshot.forEach(documentSnapshot => {
           fetchedLocations.push({
-            id: documentSnapshot.id,
-            title: documentSnapshot.data().title,
-            desc: documentSnapshot.data().desc,
-            date: documentSnapshot.data().date,
-            point: documentSnapshot.data().point,
-            coordinate: documentSnapshot.data().coordinate,
-            image: documentSnapshot.data().image,
-            userId: documentSnapshot.data().userId,
+            id: documentSnapshot?.id,
+            title: documentSnapshot.data()?.title,
+            desc: documentSnapshot.data()?.desc,
+            date: documentSnapshot.data()?.date,
+            point: documentSnapshot.data()?.point,
+            coordinate: documentSnapshot.data()?.coordinate,
+            image: documentSnapshot.data()?.image,
+            userId: documentSnapshot.data()?.userId,
           });
         });
   
@@ -130,7 +130,7 @@ const Map = ({ navigation }) => {
                 coordinate={markers.coordinate}
               >
 
-                <CustomMarker  isOwner={markers.userId === auth().currentUser.uid}/>
+                <CustomMarker  isOwner={markers.userId === auth().currentUser?.uid}/>
 
                 <Callout
                   tooltip={true}

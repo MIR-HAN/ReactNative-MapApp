@@ -7,18 +7,34 @@ import firestore from '@react-native-firebase/firestore';
 import ImageContainer from '../../components/ui/imageContaine';
 import { Star, Calendar, Location } from 'iconsax-react-nativejs';
 import auth from "@react-native-firebase/auth"
+import { LAUNCH, MAP } from '../../utils/routes';
+import { useGuest } from '../../ContextApi/GuestModeContext';
 
-const Detail = ({ route }) => {
+const Detail = ({ route, navigation }) => {
   const { item } = route?.params;
   const [loading, setLoading] = useState(false);
 
- 
+  const { setIsGuest } = useGuest(); //Context Api
 
   const addFavorite = async () => {
-    setLoading(true);
-    try {
+  
+    const user = auth().currentUser;
 
-      const user = auth().currentUser;
+    if (!user) {
+      Alert.alert(
+        "Authentication Required",
+        "You need to be logged in to add locations to your favorites.",
+        [
+          { text: "Cancel", style: "cancel" },
+          { text: "Sign In", onPress: () => setIsGuest(false) }
+        ]
+      );
+      return; // Exit function if user is null
+    }
+
+    setLoading(true);
+
+    try {
 
       const ref = firestore().collection('Favorites');
 

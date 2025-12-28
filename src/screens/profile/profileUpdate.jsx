@@ -18,7 +18,6 @@ const ProfileUpdate = ({ route, navigation }) => {
 
     const [email, setEmail] = useState(user?.email)
     const [name, setName] = useState(user?.name)
-    const [surname, setSurname] = useState(user?.surname)
     const [userType, setUserType] = useState(user?.userType)
     const [image, setImage] = useState(user?.image)
     const [loading, setLoading] = useState(false)
@@ -29,7 +28,6 @@ const ProfileUpdate = ({ route, navigation }) => {
         setLoading(true)
         const form = {
             name: name || '',
-            surname: surname || '',  
             image: image || '',
             userType: userType,
           };
@@ -79,10 +77,6 @@ const ProfileUpdate = ({ route, navigation }) => {
                         onChangeText={(value => setName(value))}
                         value={name} inputTitle={"Name"} placeholder="Name" />
 
-                    <CustomInput
-                        icon={<User color={Colors.BLACK} variant='Bold' />}
-                        onChangeText={(value => setSurname(value))}
-                        value={surname} inputTitle={"Surname"} placeholder="Surname" />
 
                     <CustomInput
                         icon={<User color={Colors.BLACK} variant='Bold' />}

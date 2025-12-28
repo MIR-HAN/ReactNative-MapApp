@@ -12,6 +12,7 @@ export const Colors={
     GOOGLE:"#db4f43",
     FACEBOOK:"#395997",
     INSTAGRAM:"#9d33b0",
-    SOFTGRAY:"#EEEEEE"
+    SOFTGRAY:"#EEEEEE",
+    LOGOCOLOR:"#335638"
     
 }

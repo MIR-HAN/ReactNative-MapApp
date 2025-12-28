@@ -18,6 +18,7 @@ import TabNavigator from './tabNavigation';
 import SelectCoordinate from '../screens/map/selectCoordinate';
 import AddLocation from '../screens/map/addLocation';
 import ProfileUpdate from '../screens/profile/profileUpdate';
+import { useGuest } from '../ContextApi/GuestModeContext';
 
 const Stack = createNativeStackNavigator();
 
@@ -26,8 +27,11 @@ const RootNavigator = () => {
   const [initializing, setInitializing] = useState(true)
   const [user, setUser] = useState()
 
+  const { isGuest, setIsGuest } = useGuest();  // Contex Api
+
   function onAuthStateChanged(user) {
     setUser(user);
+    if (user) setIsGuest(false)
     if (initializing) setInitializing(false)
   }
 
@@ -39,7 +43,7 @@ const RootNavigator = () => {
 
   if (initializing) return null;
 
- 
+
   return (
     <Stack.Navigator
       screenOptions={{
@@ -48,25 +52,28 @@ const RootNavigator = () => {
     >
 
       {
-        !user ?
+        !user && !isGuest ?
           (<Stack.Group>
             <Stack.Screen
               options={{
                 headerShown: false
               }}
-              name={LAUNCH} component={Launch} />
+              name={LAUNCH}  >
+              {(props) => <Launch {...props} setIsGuest={setIsGuest} />}
+            </Stack.Screen>
+
             <Stack.Screen name={SIGNIN} component={SignIn} />
             <Stack.Screen name={SIGNUP} component={SignUp} />
           </Stack.Group>)
           :
           (<Stack.Group>
 
-           <Stack.Screen
-           options={{
-            headerShown:false
-           }}
-           name={TAB} component={TabNavigator}/>
-          
+            <Stack.Screen
+              options={{
+                headerShown: false
+              }}
+              name={TAB} component={TabNavigator} />
+
             <Stack.Screen name={EDITPINS} component={EditPins} />
             <Stack.Screen name={DETAIL} component={Detail} />
             <Stack.Screen name={SELECTCOORDINATE} component={SelectCoordinate} />
