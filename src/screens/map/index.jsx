@@ -89,7 +89,7 @@ const Map = ({ navigation }) => {
 
         <FloatActionButton
           onPress={() => changeMapType()}
-          icon={<Map1 color={mapType == "standard" ? Colors.BLACK : Colors.GREEN} size={30} variant={mapType == "standard" ? "Outline" : "Bold"} />}
+          icon={<Map1 color={mapType == "standard" ? Colors.LOGOCOLOR : Colors.LOGOCOLOR} size={30} variant={mapType == "standard" ? "Outline" : "Bold"} />}
           customStyle={{
             top: 10,
             right: 25
@@ -103,7 +103,7 @@ const Map = ({ navigation }) => {
           customStyle={{
             right: 20,
             bottom: 40,
-            backgroundColor: Colors.GREEN
+            backgroundColor: Colors.LOGOCOLOR
           }}
 
         />

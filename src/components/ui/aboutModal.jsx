@@ -20,9 +20,9 @@ const AboutModal = ({ visible, onClose }) => {
 
                             Maple helps you discover local farmers and independent producers.
                             {"\n\n"}
-                            Find farm shops, garden stands, and local points where fresh products are sold based on trust. Our mission is to support sustainable production and make fresh food accessible to everyone, everywhere.
+                            Find farm shops, garden stands, and local points where fresh products are sold based on a trustly controbution and fair price. Our mission is to support sustainable production and make fresh food accessible to everyone, everywhere.
                             {"\n\n"}
-                            Find your local gems, support your community, and eat fresh!
+                            Find your local gems, support.. your community, and eat fresh!
 
                         </Text>
                     </ScrollView>

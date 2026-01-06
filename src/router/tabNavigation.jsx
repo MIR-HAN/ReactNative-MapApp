@@ -10,6 +10,8 @@ const { createBottomTabNavigator } = require("@react-navigation/bottom-tabs");
 
 const Tab =createBottomTabNavigator();
 
+const notificationCount = 5; // Dışarıdan veya state'ten gelen bir veri
+
 export default function TabNavigator(){
     return(
 
@@ -25,7 +27,7 @@ export default function TabNavigator(){
                 route={route}
                 />
             ),
-            tabBarActiveTintColor:Colors.BLACK,
+            tabBarActiveTintColor:Colors.LOGOCOLOR,
             tabBarInactiveTintColor:Colors.GRAY,
            
         })}

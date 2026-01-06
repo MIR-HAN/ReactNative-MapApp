@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Image, Text, SafeAreaView, TouchableOpacity, Modal, ScrollView } from 'react-native';
+import { View, Image, Text, SafeAreaView, TouchableOpacity,} from 'react-native';
 import { screenStyle } from '../../styles/screenStyle';
 import { height, width } from '../../utils/constansts';
 import { Colors } from '../../theme/colors';
@@ -21,17 +21,15 @@ const Launch = ({ navigation }) => {
         <View style={{ flex: 2, justifyContent: "center", alignItems: "center", }}>
           <Image
             source={require("../../assets/images/MapleLaunchScreenAlter.png")}
-            style={{ width: width, height: height * 0.45, resizeMode: "contain", alignSelf: "center" }}
+            style={{ width: width, height: height * 0.4, resizeMode: "contain", alignSelf: "center" }}
           />
         </View>
 
 
-        {/*** */}
+        {/**/}
 
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center", }}>
-          <Text style={{ fontSize: 35, fontWeight: "bold", color: Colors.LOGOCOLOR, marginBottom: 5 }}>
-            Hello
-          </Text>
+        <View style={{  justifyContent: "center", alignItems: "center", }}>
+        
 
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 5 }}>
             {"Welcome to Mapple".split("").map((char, i) => (
@@ -40,7 +38,7 @@ const Launch = ({ navigation }) => {
                 animation="fadeInLeft"
                 delay={i * 50}
                 duration={100}
-                style={{ fontSize: 18, color: Colors.BLACK, fontWeight: '500' }}
+                style={{ fontSize: 22, color: Colors.BLACK, fontWeight: '500' }}
               >
                 {char}
               </Animatable.Text>
@@ -71,7 +69,7 @@ const Launch = ({ navigation }) => {
           <View style={{ flex: 2, justifyContent: "center", marginVertical: 25 }}>
             <CustomButton
               onPress={() => navigation.navigate(SIGNIN)}
-              title="Sing In" />
+              title="Sign In" />
             <CustomButton
               onPress={() => navigation.navigate(SIGNUP)}
               title="Sign Up"
@@ -87,8 +85,6 @@ const Launch = ({ navigation }) => {
                 borderWidth: 2,
                 borderColor: Colors.LOGOCOLOR,
                 marginTop: 15,
-
-
               }}
               textStyle={{
                 color: Colors.LOGOCOLOR,
