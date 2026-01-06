@@ -71,7 +71,7 @@ const AddLocation = ({ route, navigation }) => {
             });
     };
 
-    // Conditional rendering: Show warning screen if user is in Guest Mode
+   
     if (!user) {
         return (
             <View style={[screenStyle.container, styles.center]}>

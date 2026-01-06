@@ -10,7 +10,7 @@ const { createBottomTabNavigator } = require("@react-navigation/bottom-tabs");
 
 const Tab =createBottomTabNavigator();
 
-const notificationCount = 5; // Dışarıdan veya state'ten gelen bir veri
+
 
 export default function TabNavigator(){
     return(

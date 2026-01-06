@@ -6,14 +6,14 @@ import LoadingModal from '../../components/ui/loadingModal';
 import firestore from '@react-native-firebase/firestore';
 import FavoritesCard from '../../components/favorites/favoritesCard';
 import auth from "@react-native-firebase/auth";
-import { useGuest } from '../../ContextApi/GuestModeContext'; // Guest context'ini import et
-import CustomButton from '../../components/ui/customButton'; // Mevcut buton bileşenin
-import { HeartSlash } from 'iconsax-react-nativejs'; // Boş durum iconu
+import { useGuest } from '../../ContextApi/GuestModeContext';  
+import CustomButton from '../../components/ui/customButton'; 
+import { HeartSlash } from 'iconsax-react-nativejs'; 
 
 const Favorites = ({ navigation }) => {
   const [favorites, setFavorites] = useState([]);
   const [pending, setPending] = useState(true);
-  const { setIsGuest } = useGuest(); // Context'ten setIsGuest fonksiyonunu al
+  const { setIsGuest } = useGuest(); 
   const user = auth().currentUser;
 
   const getFavorites = async () => {
@@ -47,9 +47,9 @@ const Favorites = ({ navigation }) => {
 
   useEffect(() => {
     getFavorites();
-  }, [user]); // Kullanıcı değiştiğinde listeyi yenile
+  }, [user]); // update the list when user changed
 
-  // GİRİŞ YAPMAMIŞ KULLANICI İÇİN GÖRÜNÜM
+ 
   if (!user) {
     return (
       <View style={[screenStyle.container, styles.center]}>

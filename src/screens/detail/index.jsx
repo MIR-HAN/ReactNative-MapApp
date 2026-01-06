@@ -51,8 +51,8 @@ const Detail = ({ route, navigation }) => {
 
       // if id not available add
       await ref.doc(`${user?.uid}_${item?.id}`).set({
-        ...item,                // item içindeki tüm bilgileri al
-        userId: user.uid,       // kendi kullanıcı ID’ni ekle
+        ...item,                
+        userId: user.uid,       
       });
       
       Alert.alert('Added to favorites!');
