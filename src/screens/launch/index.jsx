@@ -32,7 +32,7 @@ const Launch = ({ navigation }) => {
         
 
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 5 }}>
-            {"Welcome to Mapple".split("").map((char, i) => (
+            {"Welcome to Maple".split("").map((char, i) => (
               <Animatable.Text
                 key={i}
                 animation="fadeInLeft"
